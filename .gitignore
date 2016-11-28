@@ -1,4 +1,4 @@
 # Python bytecode
 *.py[co]
 *.pyc
-local.py
+/Planeacion/settings/local.py
