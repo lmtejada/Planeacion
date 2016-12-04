@@ -1,0 +1,46 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+
+
+<ul class="nav nav-tabs">
+	<li class="active"><a href="#">Infancia</a></li>
+	<li><a href="#">Juventud</a></li>
+	<li><a href="#">Discapacidad</a></li>
+	<li><a href="#">Afrodescendientes</a></li>
+	<li><a href="#">Indígenas</a></li>
+	<li><a href="#">Seguridad alimentaria</a></li>
+</ul>
+
+
+
+<div class="container">
+	<br>
+	<form>
+		<div class="form-group">
+			<label for="sel1">Indicadores:</label>
+			<select class="form-control" id="sel1">
+				<option>Razón de mortalidad Materna evitable</option>
+				<option>Tasa de mortalidad infantil</option>
+				<option>Tasa de mortalidad infantil menores de cinco </option>
+			</select>
+		</div>
+	</form>
+</div>
+
+
+<div class="container">
+	<br>
+	<form>
+		<div class="form-group">
+			<label for="usr">Recursos planeados:</label>
+			<input type="text" class="form-control" id="usr">
+		</div>
+		<div class="form-group">
+			<label for="pwd">Total recursos invertidos por accion:</label>
+			<input type="password" class="form-control" id="pwd">
+		</div>
+	</form>
+</div>
+
+{% endblock %}
