@@ -1,4 +1,5 @@
 import os
+from django.core.urlresolvers import reverse_lazy
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -18,6 +19,7 @@ THIRD_PARTY_APPS = [
 
 LOCAL_APPS = [
     'apps.seguimiento',
+    'apps.login',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -33,6 +35,9 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'Planeacion.urls'
+LOGIN_URL = reverse_lazy('cuenta:login')
+LOGIN_REDIRECT_URL = reverse_lazy('cuenta:home')
+LOGOUT_URL = reverse_lazy('cuenta:logout')
 
 TEMPLATES = [
     {

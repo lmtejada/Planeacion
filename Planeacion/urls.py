@@ -20,4 +20,5 @@ urlpatterns = [
 
     url(r'^admin/', admin.site.urls),
     url(r'^seguimiento/', include('apps.seguimiento.urls', namespace='seguimiento')),
+    url(r'^cuenta/', include('apps.login.urls', namespace='cuenta')),
 ]
