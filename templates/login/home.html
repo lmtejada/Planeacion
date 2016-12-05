@@ -1,11 +1,11 @@
-{% extends 'base/base.html' %}
+{% extends 'base/user_nav.html' %}
 
 {% block content %}
 <div class="container">
-<div class="jumbotron">
-  <h1>Jumbotron</h1>
-  <p>Bienvenido {{ user.username|capfirst }}</p>
-  <p><a class="btn btn-primary btn-lg">Learn more</a></p>
-</div>
+	<div class="jumbotron">
+		<h1>Jumbotron</h1>
+		<p>Bienvenido {{ user.groups.all.0|capfirst }}</p>
+	 	<p><a class="btn btn-primary btn-lg">Learn more</a></p>
+	</div>
 </div>
 {% endblock %}
