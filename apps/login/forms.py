@@ -24,3 +24,12 @@ class LoginForm(forms.Form):
 			raise forms.ValidationError("Debe indicar un nombre de usuario y contraseña válidos")
 		return self.cleaned_data
 
+class UserRegisterForm(forms.ModelForm):
+	class Meta:
+		model = User
+		fields = [
+			'username',
+			'email',
+			'password'
+		]
+

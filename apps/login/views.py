@@ -8,7 +8,7 @@ from django.contrib.auth import (
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.core.urlresolvers import reverse_lazy
-from apps.login.forms import LoginForm
+from apps.login.forms import LoginForm, UserRegisterForm
 
 def login_view(request):
 	title = "Iniciar sesión"
@@ -26,7 +26,9 @@ def logout_view(request):
 	return redirect('cuenta:login')
 
 def register_view(request):
-	return render(request, "login.html", {})
+	title = "Registrar usuario"
+	form = UserRegisterForm(request.POST or None)
+	return render(request, "login/registro.html", {"form": form, "title": title})
 
 @login_required()
 def home_view(request):
