@@ -1,7 +1,6 @@
 from django.contrib import admin
 from apps.seguimiento.models import (
 	Entidad,
-	Persona, 
 	PoliticaPublica, 
 	Indicador,
 	Formulario, 
@@ -14,7 +13,6 @@ from apps.seguimiento.models import (
 	Proyecto )
 
 admin.site.register(Entidad)
-admin.site.register(Persona)
 admin.site.register(PoliticaPublica)
 admin.site.register(Indicador)
 admin.site.register(Formulario)
