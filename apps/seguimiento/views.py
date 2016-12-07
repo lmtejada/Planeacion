@@ -3,7 +3,10 @@ from django.http import HttpResponse
 from django.views.generic import CreateView
 #from apps.seguimiento.forms import RespuestaForm
 from django.core.urlresolvers import reverse_lazy
-from apps.seguimiento.models import Entidad, PoliticaPublica
+from apps.login.models import Persona
+from apps.seguimiento.models import Entidad, Indicador, Pregunta, Respuesta, PoliticaPublica
+from apps.seguimiento.forms import FormularioRespuestaForm
+from django.http import QueryDict
 
 # Create your views here.
 
@@ -15,19 +18,32 @@ def inicio(request):
 	return render(request, "seguimiento/index.html", {"entidades": entidades,
 													"politicas": politicas})
 
-def formulario(request):
-	if request.method == 'POST':
-		form = RespuestaForm(request.POST)
-		if form.is_valid():
-			form.save()
+def form_view(request):
+	title = "Registrar formulario"
+	form = FormularioRespuestaForm(request.POST or None)
+	respuestas = (request.POST.keys() or None)
+	preguntas = Pregunta.objects.all()
+	indicadores = Indicador.objects.all()
+	if form.is_valid():
+		formularioRespuesta = form.save(commit=False)
+		usuario = request.user 
+		persona = Persona.objects.filter(user=usuario.id).first()
+		entidad = Entidad.objects.filter(nombre=persona.entidad).first()
+		formularioRespuesta.entidad = entidad
+		formularioRespuesta.save()
+
+		for i in respuestas:
+			if i.startswith('valor_'):
+				valor = request.POST[i]
+				data = i.split('_', 1)
+				pregunta = Pregunta.objects.filter(id=data[1]).first()
+				respuesta = Respuesta(valor=valor, pregunta=pregunta, formulario_respuesta=formularioRespuesta)
+				respuesta.save()
+
+				
 		return redirect('seguimiento:index')
-	else:
-		form = RespuestaForm()
 
-	return render(request, 'seguimiento/formulario.html', {'form': form})
-
-class CrearFormulario(CreateView):
-	#model = Infancia
-	#form_class = RespuestaForm
-	template_name = 'seguimiento/formulario.html'
-	success_url = reverse_lazy('seguimiento:index')
+	return render(request, "seguimiento/formulario.html", {"form": form, 
+												   "indicadores": indicadores, 
+												   "preguntas": preguntas, 
+												   "title": title})

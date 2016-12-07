@@ -1,9 +1,9 @@
 from django.db import models
 
 TIPO_PREGUNTA = (
-    ('0', 'text'),
-    ('1', 'number'),
-    ('2', 'select'),
+    ('text', 'text'),
+    ('number', 'number'),
+    ('select', 'select'),
 )
 
 class Entidad(models.Model):
@@ -78,8 +78,9 @@ class Formulario(models.Model):
 class FormularioRespuesta(models.Model):
 	id = models.AutoField(primary_key=True)
 	fecha = models.DateTimeField(auto_now_add=True)
-	entidad = models.OneToOneField(Entidad, on_delete=models.PROTECT)
-	indicador = models.OneToOneField(Indicador, on_delete=models.PROTECT)
+	periodo = models.CharField(max_length=10, null=True, blank=True)
+	entidad = models.ForeignKey(Entidad, on_delete=models.PROTECT)
+	indicador = models.ForeignKey(Indicador, on_delete=models.PROTECT)
 
 	def __str__(self):
 		return '{} - {} - {}'.format(self.entidad, self.indicador, self.fecha)
@@ -87,7 +88,7 @@ class FormularioRespuesta(models.Model):
 class Pregunta(models.Model):
 	id = models.AutoField(primary_key=True)
 	enunciado = models.TextField()
-	tipo_pregunta = models.CharField(max_length=1, choices=TIPO_PREGUNTA)
+	tipo_pregunta = models.CharField(max_length=10, choices=TIPO_PREGUNTA)
 	formulario = models.ForeignKey(Formulario, on_delete=models.PROTECT)
 
 	def __str__(self):
@@ -96,7 +97,7 @@ class Pregunta(models.Model):
 class Respuesta(models.Model):
 	id = models.AutoField(primary_key=True)
 	valor = models.TextField()
-	pregunta = models.OneToOneField(Pregunta, on_delete=models.PROTECT)
+	pregunta = models.ForeignKey(Pregunta, on_delete=models.PROTECT)
 	formulario_respuesta = models.ForeignKey(FormularioRespuesta, on_delete=models.PROTECT)
 
 	def __str__(self):

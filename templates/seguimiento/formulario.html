@@ -1,13 +1,43 @@
-{% extends 'base/base.html' %}
+{% extends 'base/user_nav.html' %}
+
+{% block title %}
+	{{ title }}
+{% endblock %}
 
 {% block content %}
-<div class="col-md-12" style="margin: 20px;">
-	<form class="form-horizontal" action="" method="post">
-		{% csrf_token %}
-		<div class="form-group">
-	    {{ form.as_p }}
-		</div>
-	    <input type="submit" value="Guardar" />
-	</form>
+<div class="container">
+	<div class="col-md-6 col-md-offset-3">
+		<form id = "formulario" class="form-horizontal" action="" method="post">
+			{% csrf_token %}
+			<div class="form-group">
+				<label for="indicador">Indicador</label>
+				<select name="indicador" class="form-control input-sm">
+				{% for indicador in indicadores %}
+				    <option value="{{ indicador.id }}">{{ indicador.nombre }}</option>
+				{% endfor %}
+				</select>
+				<p class="text-danger">{{ form.indicador.errors.0 }}</p>
+			</div>
+			{% for pregunta in preguntas %}
+				<div class="form-group">
+					<label for="valor">{{ pregunta.enunciado }}</label>
+					<input type="{{ pregunta.tipo_pregunta }}" class="form-control input-sm" name="valor_{{ pregunta.id }}" id="{{ pregunta.id }}">
+				</div>
+			{% endfor %}
+			<div class="form-group text-center">
+				<input id="enviar" type="button" class="btn btn-sm btn-primary" value="Guardar"/>
+			</div>
+		</form>
+	</div>
 </div>
+{% endblock %}
+{% block extrascripts %}
+<script>
+	$( "#enviar" ).click(function() {
+		$('#formulario *').filter(':input').each(function(current){
+		    if($(current).val() == '')
+		    	$(current).addClass('has-error');
+		});
+	});
+</script>
 {% endblock %}

@@ -1,8 +1,8 @@
 from django.conf.urls import url
-from apps.seguimiento.views import inicio, CrearFormulario
+from apps.seguimiento.views import inicio, form_view
 
 urlpatterns = [
 
     url(r'^$', inicio, name='index'),
-    url(r'^formulario/', CrearFormulario.as_view(), name='crear_formulario'),
+    url(r'^formulario/', form_view, name='crear_formulario'),
 ]
