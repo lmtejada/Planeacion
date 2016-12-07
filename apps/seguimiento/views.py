@@ -3,12 +3,17 @@ from django.http import HttpResponse
 from django.views.generic import CreateView
 #from apps.seguimiento.forms import RespuestaForm
 from django.core.urlresolvers import reverse_lazy
+from apps.seguimiento.models import Entidad, PoliticaPublica
 
 # Create your views here.
 
 def inicio(request):
+	politicas = PoliticaPublica.objects.all()
+	entidades = Entidad.objects.all()
+
 	#return HttpResponse("Index")
-	return render(request, "seguimiento/index.html")
+	return render(request, "seguimiento/index.html", {"entidades": entidades,
+													"politicas": politicas})
 
 def formulario(request):
 	if request.method == 'POST':
