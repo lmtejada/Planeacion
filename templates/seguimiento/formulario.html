@@ -1,43 +1,101 @@
 {% extends 'base/user_nav.html' %}
 
 {% block title %}
-	{{ title }}
+{{ title }}
 {% endblock %}
 
 {% block content %}
 <div class="container">
+
+
+	<ul class="nav nav-tabs">
+		{% for politica in politicas %}
+
+			{% if forloop.first %}
+				<li class="active"> <a data-toggle="tab" href="#{{ politica.nombre }}">{{ politica.nombre }}</a> </li>
+   			{% else %}
+   				<li> <a data-toggle="tab" href="#{{ politica.nombre }}">{{ politica.nombre }}</a> </li>
+    		{% endif %}
+		
+		{% endfor %}
+	</ul>
+
+
+	<div class="tab-content ">
+		{% for politica in politicas %}
+
+<!--  			{% if forloop.first %}
+				<div class="tab-pane fade in active" id="{{ politica.nombre }}">
+   			{% else %}
+   				<div class="tab-pane fade" id="{{ politica.nombre }}">
+    		{% endif %}  -->
+				<div class="tab-pane fade in active" id="{{ politica.nombre }}"> 
+				<h3> Politica publica: {{ politica.nombre }} </h3>
+
+
+				<div class="col-md-6 col-md-offset-3">
+					<form id = "formulario" class="form-horizontal" action="" method="post">
+						{% csrf_token %}
+						<div class="form-group">
+							<label for="indicador">Indicador</label>
+							<select name="indicador" class="form-control input-sm">
+								{% for indicador in indicadores %}
+
+									{% if indicador.politica_publica == politica %}
+										<option value="{{ indicador.id }}">{{ indicador.nombre }}</option>
+									{% endif %}
+
+								{% endfor %}
+							</select>
+							<p class="text-danger">{{ form.indicador.errors.0 }}</p>
+						</div>
+						{% for pregunta in preguntas %}
+						<div class="form-group">
+							<label for="valor">{{ pregunta.enunciado }}</label>
+							<input type="{{ pregunta.tipo_pregunta }}" class="form-control input-sm" name="valor_{{ pregunta.id }}" id="{{ pregunta.id }}">
+						</div>
+						{% endfor %}
+						<div class="form-group text-center">
+							<input id="enviar" type="submit" class="btn btn-sm btn-primary" value="Guardar"/>
+						</div>
+					</form>
+				</div>
+
+			</div>
+
+		{% endfor %}
+	</div>
+
+</div>
+
+
+
+
+
+
+<!-- <div class="container">
 	<div class="col-md-6 col-md-offset-3">
 		<form id = "formulario" class="form-horizontal" action="" method="post">
 			{% csrf_token %}
 			<div class="form-group">
 				<label for="indicador">Indicador</label>
 				<select name="indicador" class="form-control input-sm">
-				{% for indicador in indicadores %}
-				    <option value="{{ indicador.id }}">{{ indicador.nombre }}</option>
-				{% endfor %}
+					{% for indicador in indicadores %}
+					<option value="{{ indicador.id }}">{{ indicador.nombre }}</option>
+					{% endfor %}
 				</select>
 				<p class="text-danger">{{ form.indicador.errors.0 }}</p>
 			</div>
 			{% for pregunta in preguntas %}
-				<div class="form-group">
-					<label for="valor">{{ pregunta.enunciado }}</label>
-					<input type="{{ pregunta.tipo_pregunta }}" class="form-control input-sm" name="valor_{{ pregunta.id }}" id="{{ pregunta.id }}">
-				</div>
+			<div class="form-group">
+				<label for="valor">{{ pregunta.enunciado }}</label>
+				<input type="{{ pregunta.tipo_pregunta }}" class="form-control input-sm" name="valor_{{ pregunta.id }}" id="{{ pregunta.id }}">
+			</div>
 			{% endfor %}
 			<div class="form-group text-center">
-				<input id="enviar" type="button" class="btn btn-sm btn-primary" value="Guardar"/>
+				<input id="enviar" type="submit" class="btn btn-sm btn-primary" value="Guardar"/>
 			</div>
 		</form>
 	</div>
-</div>
-{% endblock %}
-{% block extrascripts %}
-<script>
-	$( "#enviar" ).click(function() {
-		$('#formulario *').filter(':input').each(function(current){
-		    if($(current).val() == '')
-		    	$(current).addClass('has-error');
-		});
-	});
-</script>
+</div> -->
 {% endblock %}
