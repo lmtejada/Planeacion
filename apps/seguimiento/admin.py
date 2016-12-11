@@ -10,7 +10,8 @@ from apps.seguimiento.models import (
 	EjeEstrategico,
 	Programa,
 	Subprograma,
-	Proyecto )
+	Proyecto,
+	Vigencia )
 
 admin.site.register(Entidad)
 admin.site.register(PoliticaPublica)
@@ -23,3 +24,4 @@ admin.site.register(EjeEstrategico)
 admin.site.register(Programa)
 admin.site.register(Subprograma)
 admin.site.register(Proyecto)
+admin.site.register(Vigencia)

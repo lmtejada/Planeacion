@@ -1,25 +1,37 @@
 {% extends 'base/user_nav.html' %}
-
+{% load staticfiles %}
 {% block title %}
 {{ title }}
 {% endblock %}
 
 {% block content %}
 <div class="container">
-
-
+	{% if politicas == 0%}
+    <div class="jumbotron text-center">
+	<h1>Aviso</h1>
+		<p>El registro de indicadores no se encuentra habilitado.</p>
+	</div>
+	{% else %}
+	{% if messages %}
+	    {% for message in messages %}
+	    	{% if message.tags == 'error' %}
+	    		<div id="messages" class="alert alert-danger text-center" style="opacity: 0.7">{{ message }}</div>
+	    	{% else %}
+	    		<div id="messages" class="alert alert-{{ message.tags }} text-center" style="opacity: 0.7">{{ message }}</div>
+	    	{% endif %}
+	    {% endfor %}
+	{% endif %}
 	<ul class="nav nav-tabs">
 		{% for politica in politicas %}
 
 			{% if forloop.first %}
-				<li class="active"> <a data-toggle="tab" href="#{{ politica.id }}">{{ politica.nombre }}</a> </li>
+				<li class="active"> <a data-toggle="tab" href="#{{ politica.id }}">{{ politica.alias }}</a> </li>
    			{% else %}
-   				<li> <a data-toggle="tab" href="#{{ politica.id }}">{{ politica.nombre }}</a> </li>
+   				<li> <a data-toggle="tab" href="#{{ politica.id }}">{{ politica.alias }}</a> </li>
     		{% endif %}
 		
 		{% endfor %}
 	</ul>
-
 
 	<div class="tab-content ">
 		{% for politica in politicas %}
@@ -29,73 +41,49 @@
    			{% else %}
    				<div class="tab-pane fade" id="{{ politica.id }}">
     		{% endif %}  
-				<!-- <div class="tab-pane fade" id="{{ politica.nombre }}">  -->
-				<h3> Politica publica: {{ politica.nombre }} </h3>
-
-
-				<div class="col-md-6 col-md-offset-3">
-					<form id = "formulario" class="form-horizontal" action="" method="post">
+				<h3 class="text-center">  {{ politica.nombre }} </h3>
+				<hr/>
+				<div id="data_{{ politica.id }}" class="data" style="display:none"></div>
+				<hr id="wrapper_{{ politica.id }}" class="data-wrapper" style="display:none"/>
+				<div id="errors_{{ politica.id }}" class="alert alert-dismissible alert-danger text-center errors" style="opacity: 0.7; display: none;">
+				</div>
+				<div>
+					<form id = "formulario_{{ politica.id }}" class="form-horizontal formulario" action="" method="post">
 						{% csrf_token %}
-						<div class="form-group">
+						<input type="hidden" id="form_{{ politica.id }}" name="form_id">
+						<div class="form-group col-md-12">
 							<label for="indicador">Indicador</label>
-							<select name="indicador" class="form-control input-sm">
+							<select id="indicador_{{ politica.id }}" name="indicador" class="form-control input-sm indicadores">
+								<option value="null">Ninguno</option>
 								{% for indicador in indicadores %}
-
 									{% if indicador.politica_publica == politica %}
 										<option value="{{ indicador.id }}">{{ indicador.nombre }}</option>
 									{% endif %}
-
 								{% endfor %}
 							</select>
 							<p class="text-danger">{{ form.indicador.errors.0 }}</p>
 						</div>
 						{% for pregunta in preguntas %}
-						<div class="form-group">
+						<div class="form-group col-md-6" style="margin-right: 10px;">
 							<label for="valor">{{ pregunta.enunciado }}</label>
-							<input type="{{ pregunta.tipo_pregunta }}" class="form-control input-sm" name="valor_{{ pregunta.id }}">
+							<input type="hidden" id="respuesta_{{ politica.id }}_{{ pregunta.id }}" name="respuesta_id_{{ pregunta.id }}">
+							<input type="{{ pregunta.tipo_pregunta }}" id="valor_{{ politica.id }}_{{ pregunta.id }}" class="form-control input-sm" name="valor_{{ pregunta.id }}">
 						</div>
 						{% endfor %}
 						<div class="form-group text-center">
-							<input id="enviar" type="submit" class="btn btn-sm btn-primary" value="Guardar"/>
+							<input id="guardar_{{ politica.id }}" type="button" class="btn btn-sm btn-primary guardar" value="Guardar"/>
+							<input id="enviar_{{ politica.id }}" type="button" class="btn btn-sm btn-primary enviar" value="Enviar"/>
 						</div>
 					</form>
 				</div>
-
 			</div>
 
 		{% endfor %}
 	</div>
-
+	{% endif %}
 </div>
+{% endblock %}
 
-
-
-
-
-
-<!-- <div class="container">
-	<div class="col-md-6 col-md-offset-3">
-		<form id = "formulario" class="form-horizontal" action="" method="post">
-			{% csrf_token %}
-			<div class="form-group">
-				<label for="indicador">Indicador</label>
-				<select name="indicador" class="form-control input-sm">
-					{% for indicador in indicadores %}
-					<option value="{{ indicador.id }}">{{ indicador.nombre }}</option>
-					{% endfor %}
-				</select>
-				<p class="text-danger">{{ form.indicador.errors.0 }}</p>
-			</div>
-			{% for pregunta in preguntas %}
-			<div class="form-group">
-				<label for="valor">{{ pregunta.enunciado }}</label>
-				<input type="{{ pregunta.tipo_pregunta }}" class="form-control input-sm" name="valor_{{ pregunta.id }}" id="{{ pregunta.id }}">
-			</div>
-			{% endfor %}
-			<div class="form-group text-center">
-				<input id="enviar" type="submit" class="btn btn-sm btn-primary" value="Guardar"/>
-			</div>
-		</form>
-	</div>
-</div> -->
+{% block extrascripts %}
+	<script src="{% static 'js/main.js' %}"></script>
 {% endblock %}

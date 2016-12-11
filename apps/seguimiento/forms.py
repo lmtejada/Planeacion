@@ -7,6 +7,7 @@ class FormularioRespuestaForm(forms.ModelForm):
 		model = FormularioRespuesta
 		fields = [
 			'indicador',
+			'enviado'
 		]
 
 class RespuestaForm(forms.ModelForm):

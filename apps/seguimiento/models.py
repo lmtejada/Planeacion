@@ -70,20 +70,35 @@ class Indicador(models.Model):
 class Formulario(models.Model):
 	id = models.AutoField(primary_key=True)
 	nombre = models.CharField(max_length=200)
-	politica = models.OneToOneField(PoliticaPublica, null=True, on_delete=models.SET_NULL)
 
 	def __str__(self):
 		return '{}'.format(self.nombre)
 
-class FormularioRespuesta(models.Model):
+class Vigencia(models.Model):
 	id = models.AutoField(primary_key=True)
-	fecha = models.DateTimeField(auto_now_add=True)
-	periodo = models.CharField(max_length=10, null=True, blank=True)
-	entidad = models.ForeignKey(Entidad, on_delete=models.PROTECT)
-	indicador = models.ForeignKey(Indicador, on_delete=models.PROTECT)
+	periodo = models.CharField(max_length=10, unique=True)
+	fecha_inicio = models.DateTimeField()
+	fecha_fin = models.DateTimeField()
+	activo = models.BooleanField(default=True)
+	formulario = models.ForeignKey(Formulario, on_delete=models.PROTECT)
 
 	def __str__(self):
-		return '{} - {} - {}'.format(self.entidad, self.indicador, self.fecha)
+		return '{}'.format(self.periodo)
+
+class FormularioRespuesta(models.Model):
+	id = models.AutoField(primary_key=True)
+	fecha_creacion = models.DateTimeField(auto_now_add=True)
+	fecha_envio = models.DateTimeField(null=True)
+	estado = models.NullBooleanField()
+	enviado = models.BooleanField(default=False)
+	activo = models.BooleanField(default=True)
+	observaciones = models.TextField(null=True)
+	entidad = models.ForeignKey(Entidad, on_delete=models.PROTECT)
+	indicador = models.ForeignKey(Indicador, on_delete=models.PROTECT)
+	vigencia = models.ForeignKey(Vigencia, on_delete=models.PROTECT)
+
+	def __str__(self):
+		return '{} - {} - {}'.format(self.entidad, self.indicador, self.fecha_envio)
 
 class Pregunta(models.Model):
 	id = models.AutoField(primary_key=True)
