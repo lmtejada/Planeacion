@@ -67,7 +67,7 @@ class Proyecto(models.Model):
 class Indicador(models.Model):
 	id = models.AutoField(primary_key=True)
 	nombre = models.CharField(max_length=200)
-	#accion = models.TextField()
+	accion = models.TextField(null=True)
 	politica_publica = models.ForeignKey(PoliticaPublica, on_delete=models.CASCADE) 
 	entidad = models.ManyToManyField(Entidad)
 	proyecto = models.ForeignKey(Proyecto, on_delete=models.CASCADE)
@@ -96,7 +96,7 @@ class Vigencia(models.Model):
 class FormularioRespuesta(models.Model):
 	id = models.AutoField(primary_key=True)
 	fecha_envio = models.DateTimeField(null=True)
-	estado = models.CharField(max_length=15, choices=ESTADO)
+	estado = models.CharField(max_length=15, choices=ESTADO, null=True)
 	enviado = models.BooleanField(default=False)
 	activo = models.BooleanField(default=True)
 	observaciones = models.TextField(null=True)

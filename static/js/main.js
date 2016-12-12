@@ -8,37 +8,16 @@ $('.nav').click(function() {
 });
 
 $('input').on('change', function() {
-    $('.errors').html('');
-    $('.errors').hide();
+    //$('.errors').html('');
+    //$('.errors').hide();
 });
 
 $('select').on('change', function() {
-    $('.errors').html('');
-    $('.errors').hide();
+    //$('.errors').html('');
+    //$('.errors').hide();
 });
 
 $('.guardar').on('click', function(event){	
-    event.preventDefault();
-    var enviar = true;
-    var form = $(this).parents('.formulario');
-    var id = $(form).attr('id');
-    var politica_id = id.split('_');
-    politica_id = politica_id[1];
-
-    if($("#indicador_"+politica_id).val() == "null"){
-        enviar = false;
-        $('#errors_'+politica_id).html("<p>Por favor seleccione un indicador.</p>"); 
-        $('#errors_'+politica_id).show();
-    }
-
-    if(enviar){
-        var csrftoken = getCookie('csrftoken');
-        $('input[name=csrfmiddlewaretoken]').val(csrftoken);
-        $(form).submit();
-    }
-});
-
-$('.enviar').on('click', function(event){	
     event.preventDefault();
     var enviar = true;
     var form = $(this).parents('.formulario');
@@ -55,7 +34,7 @@ $('.enviar').on('click', function(event){
             if(!$(this).is(':hidden')){
                 if(this.value == ''){
                     enviar = false;
-                    $('#errors_'+politica_id).html("<p>Para enviar el formulario debe diligenciar todos los campos.</p>"); 
+                    $('#errors_'+politica_id).html("<p>Para guardar el formulario debe diligenciar todos los campos.</p>"); 
                     $('#errors_'+politica_id).show();
                     return;
                 }
@@ -64,12 +43,22 @@ $('.enviar').on('click', function(event){
     } 
 
     if(enviar){
-        $('#'+id).append("<input type='hidden' name='enviado' value='true'/>");
-        $('#'+id).append("<input type='hidden' name='activo' value='false'/>");
         var csrftoken = getCookie('csrftoken');
         $('input[name=csrfmiddlewaretoken]').val(csrftoken);
         $(form).submit();
     }
+});
+
+$('.enviar').on('click', function(event){	
+    event.preventDefault();
+    var form = $(this).parents('.formulario');
+    var id = $(form).attr('id');
+   
+    $('#'+id).append("<input type='hidden' name='enviado' value='true'/>");
+    //$('#'+id).append("<input type='hidden' name='activo' value='false'/>");
+    var csrftoken = getCookie('csrftoken');
+    $('input[name=csrfmiddlewaretoken]').val(csrftoken);
+    $(form).submit();
 });
 
 $('.indicadores').on('change', function(event){	
@@ -124,46 +113,36 @@ function llenarFormulario(json, politica_id){
     $("#data_"+politica_id).show();
     $("#wrapper_"+politica_id).show();
 
-	if(obj['form_id']){
-		$("#form_"+politica_id).val(obj['form_id']);
-        var respuestas = obj['respuestas'];
-        if(jQuery.isEmptyObject(respuestas)){
-            $(':input:not([type=button], [name=form_id])', '#'+id).each(function() {
-            if(!$(this).is('select'))
-                $(this).val('');
-            });
-        } else {
-            for(var key in respuestas) {
-                $("#respuesta_"+politica_id+"_"+respuestas[key].pregunta_id).val(respuestas[key].respuesta_id);
-                $("#valor_"+politica_id+"_"+respuestas[key].pregunta_id).val(respuestas[key].valor);
-            }
+    var respuestas = obj['respuestas'];
+    if(jQuery.isEmptyObject(respuestas)){
+        $(':input:not([type=button], [name=form_id])', '#'+id).each(function() {
+        if(!$(this).is('select'))
+            $(this).val('');
+        });
+    } else {
+        for(var key in respuestas) {
+            $("#respuesta_"+politica_id+"_"+respuestas[key].pregunta_id).val(respuestas[key].respuesta_id);
+            $("#valor_"+politica_id+"_"+respuestas[key].pregunta_id).val(respuestas[key].valor);
         }
+    }
 
-        if(obj['activo']){
-            $(':input:not([name=indicador])', '#'+id).each(function() {
-                $(this).prop('disabled', false);
-            });
-        } else {
-            if(obj['estado']){
-                $('#errors_'+politica_id).html("<p>El formulario ya fue aprobado y no puede ser modificado.</p>"); 
-                $('#errors_'+politica_id).show(); 
-            } else {
-                $('#errors_'+politica_id).html("<p>El formulario se encuentra en proceso de revisión y no puede ser modificado.</p>"); 
-                $('#errors_'+politica_id).show(); 
-            }
-            $(':input:not([name=indicador])', '#'+id).each(function() {
-                $(this).prop('disabled', true); 
-            });
-        }
-	} else {
+    if(obj['activo']){
         $(':input:not([name=indicador])', '#'+id).each(function() {
             $(this).prop('disabled', false);
         });
-	    $(':input:not([type=button])', '#'+id).each(function() {
-            if(!$(this).is('select'))
-                $(this).val('');
-		});
-	}
+    } else {
+        if(obj['estado']=='aprobado'){
+            $('#errors_'+politica_id).html("<p>El formulario ya fue aprobado y no puede ser modificado.</p>"); 
+            $('#errors_'+politica_id).show(); 
+        } 
+        if(obj['estado']=='pendiente'){
+            $('#errors_'+politica_id).html("<p>El formulario se encuentra en proceso de revisión y no puede ser modificado.</p>"); 
+            $('#errors_'+politica_id).show(); 
+        }
+        $(':input:not([name=indicador])', '#'+id).each(function() {
+            $(this).prop('disabled', true); 
+        });
+    }
 };
 
 function getCookie(name) {
