@@ -32,7 +32,7 @@
 				<td>No aprobado</td>
 				{% endif %}
 
-				<td> <a href="#" class="btn btn-success btn-sm ver_detalle" rel="{{formulariorespuesta.id}}">Ver detalle</a> </td>
+				<td> <a href="{% url 'consultas:detalle' formulariorespuesta.pk  %}" class="btn btn-success btn-sm">Ver detalle</a> </td>
 			</tr>
 
 			{% endfor %}
