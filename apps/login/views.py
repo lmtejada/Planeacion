@@ -6,11 +6,13 @@ from django.contrib.auth import (
 		login,
 		logout,
 	)
+from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.core.urlresolvers import reverse_lazy
-from apps.login.forms import LoginForm, UserRegisterForm, PersonaForm
+from apps.login.forms import LoginForm, UserRegisterForm, PersonaForm, EditUserForm, EditPersonaForm
 from apps.seguimiento.models import Entidad
+from apps.login.models import Persona
 
 # Agregar la parte del next
 def login_view(request):
@@ -59,3 +61,47 @@ def home_view(request):
 		extends = 'base/user_nav.html'
 
 	return render(request, "login/home.html", {"extends": extends})
+
+@login_required()
+def gestionar_view(request):
+	title = "Gestionar cuenta"
+	editUserForm = EditUserForm(request.POST or None)
+	editPersonaForm = EditPersonaForm(request.POST or None)
+	usuario = request.user
+	persona = Persona.objects.filter(user=usuario).first()
+
+	if request.user.groups.filter(name='Administrador').count() == 1:
+		extends = 'base/admin_nav.html'
+	elif request.user.groups.filter(name='Operador').count() == 1:
+		extends = 'base/user_nav.html'
+	else:
+		return redirect('cuenta:home')
+
+
+
+	if editUserForm.is_valid() and editPersonaForm.is_valid():
+		password = editUserForm.cleaned_data.get("password")
+
+		if usuario.check_password(password):
+			print("son iguales")
+		else:
+			messages.add_message(request, messages.ERROR, 'Contraseña incorrecta.')
+			return render(request, "login/gestionar.html", {"extends": extends,
+														"title": title,
+														"usuario": usuario,
+														"persona": persona,
+														"editUserForm": editUserForm,
+														"editPersonaForm": editPersonaForm})
+
+		newPassword = request.POST['new_password']
+		print(newPassword)
+		againPassword = request.POST['again_password']
+		print(againPassword)
+		return redirect('cuenta:home')
+
+	return render(request, "login/gestionar.html", {"extends": extends,
+														"title": title,
+														"usuario": usuario,
+														"persona": persona,
+														"editUserForm": editUserForm,
+														"editPersonaForm": editPersonaForm})

@@ -45,6 +45,22 @@ class PersonaForm(forms.ModelForm):
 			'entidad'
 		]
 
+class EditUserForm(forms.ModelForm):
+	password = forms.CharField(required=False)
+	class Meta:
+		model = User
+		fields = [
+			'email',
+			'password'
+		]
+
+class EditPersonaForm(forms.ModelForm):
+	class Meta:
+		model = Persona
+		fields = [
+			'nombre'
+		]
+
 
 
 
