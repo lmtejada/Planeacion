@@ -1,5 +1,5 @@
 $(document).click(function() {
-    $("#messages").remove();
+    $(".messages").remove();
 });
 
 $('.nav').click(function() {
@@ -49,7 +49,7 @@ $('.guardar').on('click', function(event){
     }
 });
 
-$('.enviar').on('click', function(event){	
+$('#enviar').on('click', function(event){	
     event.preventDefault();
     var form = $(this).parents('.formulario');
     var id = $(form).attr('id');
@@ -83,6 +83,23 @@ $('.indicadores').on('change', function(event){
                 $(this).val('');
 		});
     }
+});
+
+$('#calificacion').on('change', function(event){ 
+    var value = $(this).val();
+    if(value == 'no_aprobado'){
+        $("#observaciones").html('<label for="observaciones">Observaciones</label><textarea rows="4" class="form-control" name="observaciones"></textarea>');
+    } else {
+        $("#observaciones").html('');
+    }
+});
+
+$('#calificar').on('click', function(event){   
+    event.preventDefault();
+    var form = $(this).parents('.formulario');
+    var csrftoken = getCookie('csrftoken');
+    $('input[name=csrfmiddlewaretoken]').val(csrftoken);
+    $(form).submit();
 });
 
 function cargarData(indicador_id, formulario_id) { 

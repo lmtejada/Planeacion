@@ -1,10 +1,114 @@
 {% extends extends %}
+{% load staticfiles %}
+{% block title %}
+{{ title }}
+{% endblock %}
 
 {% block content %}
 <div class="container">
+	{% if form == 0%}
+    <div class="jumbotron text-center">
+	<h1>Error</h1>
+		<p>Este formulario no existe.</p>
+	</div>
+	{% else %}
 
-	<h1>Hola mundo</h1>
-	<h1>id= {{ idformulariorespuesta.pk }}</h1>
+	{% if messages %}
+	    {% for message in messages %}
+	    	{% if message.tags == 'error' %}
+	    		<div class="alert alert-danger text-center messages" style="opacity: 0.7">{{ message }}</div>
+	    	{% else %}
+	    		<div class="alert alert-{{ message.tags }} text-center messages" style="opacity: 0.7">{{ message }}</div>
+	    	{% endif %}
+	    {% endfor %}
+	{% endif %}
 
+	<ul class="nav nav-tabs">
+		{% if rol == 1 and form.estado == 'pendiente' %}
+ 			<li class="active"><a data-toggle="tab" href="#evaluacion">Evaluación</a></li>
+ 		{% endif %} 
+
+		{% for politica in politicas %}
+			{% if forloop.first %}
+				{% if rol != 1 or form.estado != 'pendiente' %}
+					<li class="active"><a data-toggle="tab" href="#{{ politica.id }}">{{ politica.alias }}</a></li>	
+				{% else %}
+					<li><a data-toggle="tab" href="#{{ politica.id }}">{{ politica.alias }}</a></li>
+				{% endif %}	
+   			{% else %}
+   				<li><a data-toggle="tab" href="#{{ politica.id }}">{{ politica.alias }}</a></li>
+    		{% endif %}	
+		{% endfor %}	
+	</ul>
+
+	<div class="tab-content">
+		{% if rol == 1 and form.estado == 'pendiente' %}
+			<div class="tab-pane fade in active col-md-6 col-md-offset-3" id="evaluacion">
+				<h3 class="text-center">Evaluación del formulario</h3>
+				<form id="formulario_calificar" class="form-horizontal formulario" action="" method="post">
+					{% csrf_token %}
+					<div class="form-group">
+						<label for="calificacion">Calificación</label>
+						<select id="calificacion" name="estado" class="form-control input-sm">
+							<option value="null">Ninguno</option>
+							<option value="aprobado">Aprobado</option>
+							<option value="no_aprobado">No aprobado</option>
+						</select>
+					</div>
+					<div id="observaciones" class="form-group">
+					</div>	
+					<div class="form-group text-center">
+						<input id="calificar" type="button" class="btn btn-sm btn-primary" value="Enviar"/>
+					</div>
+				</form>
+			</div>
+		{% endif %}
+		{% for politica in politicas %}
+			{% if forloop.first %}
+				{% if rol != 1 or form.estado != 'pendiente' %}
+   					<div class="tab-pane fade in active" id="{{ politica.id }}"> 
+   				{% else %}
+   					<div class="tab-pane fade" id="{{ politica.id }}">
+				{% endif %}		
+   			{% else %}
+   				<div class="tab-pane fade" id="{{ politica.id }}">
+   			{% endif %}	
+
+				<h3 class="text-center">  {{ politica.nombre }} </h3>
+				<hr/>
+				<div id="data_{{ politica.id }}" class="data" style="display:none"></div>
+				<hr id="wrapper_{{ politica.id }}" class="data-wrapper" style="display:none"/>
+				<div>
+					<form id = "formulario_{{ politica.id }}" class="form-horizontal formulario" action="" method="post">
+						{% csrf_token %}
+						<div class="form-group col-md-12">
+							<label for="indicador">Indicador</label>
+							<select id="indicador_{{ politica.id }}" name="indicador" class="form-control input-sm indicadores">
+								<option value="null">Ninguno</option>
+								{% for indicador in indicadores %}
+									{% if indicador.politica_publica == politica %}
+										<option value="{{ indicador.id }}">{{ indicador.nombre }}</option>
+									{% endif %}
+								{% endfor %}
+							</select>
+							<p class="text-danger">{{ form.indicador.errors.0 }}</p>
+						</div>
+						{% for pregunta in preguntas %}
+						<div class="form-group col-md-6" style="margin-right: 10px;">
+							<label for="valor">{{ pregunta.enunciado }}</label>
+							<input type="{{ pregunta.tipo_pregunta }}" id="valor_{{ politica.id }}_{{ pregunta.id }}" class="form-control input-sm" name="valor_{{ pregunta.id }}">
+						</div>
+						{% endfor %}
+					</form>
+				</div>
+			</div>
+
+		{% endfor %}
+	</div>
+	{% endif %}
 </div>
+{% endblock %}
+
+{% block extrascripts %}
+	<script src="{% static 'js/main.js' %}"></script>
 {% endblock %}

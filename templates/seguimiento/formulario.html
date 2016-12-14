@@ -21,20 +21,16 @@
 	{% if messages %}
 	    {% for message in messages %}
 	    	{% if message.tags == 'error' %}
-	    		<div id="messages" class="alert alert-danger text-center" style="opacity: 0.7">{{ message }}</div>
+	    		<div class="messages" class="alert alert-danger text-center" style="opacity: 0.7">{{ message }}</div>
 	    	{% else %}
-	    		<div id="messages" class="alert alert-{{ message.tags }} text-center" style="opacity: 0.7">{{ message }}</div>
+	    		<div class="messages" class="alert alert-{{ message.tags }} text-center" style="opacity: 0.7">{{ message }}</div>
 	    	{% endif %}
 	    {% endfor %}
 	{% endif %}
 	<ul class="nav nav-tabs">
-		<li class="active"> <a data-toggle="tab" href="#resumen">Resumen</a> </li>
+		<li class="active"><a data-toggle="tab" href="#resumen">Resumen</a> </li>
 		{% for politica in politicas %}
-			{% if forloop.first %}
-				<li> <a data-toggle="tab" href="#{{ politica.id }}">{{ politica.alias }}</a> </li>
-   			{% else %}
-   				<li> <a data-toggle="tab" href="#{{ politica.id }}">{{ politica.alias }}</a> </li>
-    		{% endif %}	
+   			<li> <a data-toggle="tab" href="#{{ politica.id }}">{{ politica.alias }}</a> </li>
 		{% endfor %}
 	</ul>
 
@@ -63,7 +59,7 @@
 			</table>
 			<form id="formulario_envio" class="form-horizontal formulario" action="" method="post">
 				{% csrf_token %}
-				<input id="enviar" type="button" class="btn btn-sm btn-primary enviar" value="Enviar"/>
+				<input id="enviar" type="button" class="btn btn-sm btn-primary" value="Enviar"/>
 			</form>
 		</div>
 		{% for politica in politicas %}
@@ -77,7 +73,6 @@
 				<div>
 					<form id = "formulario_{{ politica.id }}" class="form-horizontal formulario" action="" method="post">
 						{% csrf_token %}
-						<input type="hidden" id="form_{{ politica.id }}" name="form_id">
 						<div class="form-group col-md-12">
 							<label for="indicador">Indicador</label>
 							<select id="indicador_{{ politica.id }}" name="indicador" class="form-control input-sm indicadores">
