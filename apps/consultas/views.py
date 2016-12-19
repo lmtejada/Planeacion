@@ -6,8 +6,6 @@ from django.db.models import prefetch_related_objects
 from apps.seguimiento.models import FormularioRespuesta, Indicador
 from apps.login.models import Persona
 
-# Create your views here.
-
 @login_required()
 def listado_view(request):
 
@@ -38,7 +36,7 @@ def detalle_view(request, pk):
 	form = FormularioRespuesta.objects.filter(id=int(pk)).prefetch_related('respuesta_set').first()
 
 	if form is not None:
-		respuestas = form.respuesta_set.all().order_by('pregunta')
+		respuestas = form.respuesta_set.all().order_by('pregunta', 'indicador')
 		prefetch_related_objects(respuestas, 'pregunta')
 		politicas = []
 		indicadores = []

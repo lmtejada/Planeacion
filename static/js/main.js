@@ -1,8 +1,9 @@
 $(document).click(function() {
-    $(".messages").remove();
+    //$(".messages").remove();
 });
 
 $('.nav').click(function() {
+    $(".messages").remove();
     //$('.errors').html('');
     //$('.errors').hide();
 });
@@ -85,7 +86,8 @@ $('.indicadores').on('change', function(event){
     }
 });
 
-$('#calificacion').on('change', function(event){ 
+$('#calificacion').on('change', function(event){
+    $("#mensajes").html(''); 
     var value = $(this).val();
     if(value == 'no_aprobado'){
         $("#observaciones").html('<label for="observaciones">Observaciones</label><textarea rows="4" class="form-control" name="observaciones"></textarea>');
@@ -98,8 +100,12 @@ $('#calificar').on('click', function(event){
     event.preventDefault();
     var form = $(this).parents('.formulario');
     var csrftoken = getCookie('csrftoken');
-    $('input[name=csrfmiddlewaretoken]').val(csrftoken);
-    $(form).submit();
+    if($("#calificacion").val() != 'null'){
+        $('input[name=csrfmiddlewaretoken]').val(csrftoken);
+        $(form).submit();
+    } else {
+        $("#mensajes").html('<div class="alert alert-danger text-center messages" style="opacity: 0.7">Debe seleccionar una calificación</div>');
+    }
 });
 
 function cargarData(indicador_id, formulario_id) { 
@@ -123,10 +129,15 @@ function llenarFormulario(json, politica_id){
 	var obj = JSON.parse(json);
     var id = "formulario_"+politica_id;
     console.log(obj);
-    $("#data_"+politica_id).html("<div class='row'><div class='col-md-6'><label>Eje estratégico</label><p>"+obj['data']['eje_estrategico']+"</p></div>"+
+    $("#data_"+politica_id).html("<h3>Plan de desarrollo</h3><hr/>"+
+                                 "<div class='row'><div class='col-md-6'><label>Eje estratégico</label><p>"+obj['data']['eje_estrategico']+"</p></div>"+
                                  "<div class='col-md-6'><label>Programa</label><p>"+obj['data']['programa']+"</p></div></div>"+
                                  "<div class='row'><div class='col-md-6'><label>Subprograma</label><p>"+obj['data']['subprograma']+"</p></div>"+
-                                 "<div class='col-md-6'><label>Proyecto</label><p>"+obj['data']['proyecto']+"</p></div></div>");
+                                 "<div class='col-md-6'><label>Proyecto</label><p>"+obj['data']['proyecto']+"</p></div></div>"+
+                                 "<hr/><h3>Información de la política</h3><hr/>"+
+                                 "<div class='row'><div class='col-md-6'><label>"+obj['data']['nivel1'].nombre+"</label><p>"+obj['data']['nivel1'].valor+"</p></div>"+
+                                 "<div class='col-md-6'><label>"+obj['data']['nivel2'].nombre+"</label><p>"+obj['data']['nivel2'].valor+"</p></div></div>"+
+                                 "<div class='row'><div class='col-md-6'><label>"+obj['data']['nivel3'].nombre+"</label><p>"+obj['data']['nivel3'].valor+"</p></div></div>");
     $("#data_"+politica_id).show();
     $("#wrapper_"+politica_id).show();
 
@@ -137,6 +148,10 @@ function llenarFormulario(json, politica_id){
             $(this).val('');
         });
     } else {
+        console.log(obj['data']['accion']);
+        $("#accion_"+politica_id).val(obj['data']['accion']);
+        $("#ubicacion_"+politica_id).val(obj['data']['ubicacion']);
+        $("#soporte_"+politica_id).val(obj['data']['soporte']);
         for(var key in respuestas) {
             $("#respuesta_"+politica_id+"_"+respuestas[key].pregunta_id).val(respuestas[key].respuesta_id);
             $("#valor_"+politica_id+"_"+respuestas[key].pregunta_id).val(respuestas[key].valor);
@@ -156,6 +171,12 @@ function llenarFormulario(json, politica_id){
             $('#errors_'+politica_id).html("<p>El formulario se encuentra en proceso de revisión y no puede ser modificado.</p>"); 
             $('#errors_'+politica_id).show(); 
         }
+        $(':input:not([name=indicador])', '#'+id).each(function() {
+            $(this).prop('disabled', true); 
+        });
+    }
+
+    if($("#"+id).hasClass('detalle')){
         $(':input:not([name=indicador])', '#'+id).each(function() {
             $(this).prop('disabled', true); 
         });
