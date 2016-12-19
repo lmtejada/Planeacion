@@ -6,25 +6,61 @@ from django.db.models import prefetch_related_objects
 from apps.seguimiento.models import FormularioRespuesta, Indicador, Respuesta, Pregunta, PoliticaPublica, Vigencia
 from apps.login.models import Persona
 
-# Create your views here.
-
 @login_required()
 def reporte_general_view(request):
 	title = "Reporte general"
-	politicas = PoliticaPublica.objects.all()
-	indicadores = Indicador.objects.all().order_by('id').select_related('politica_publica')
+	if request.user.groups.filter(name='Administrador').count() == 1:
+		politicas = PoliticaPublica.objects.all()
+		indicadores = Indicador.objects.all().order_by('id').select_related('politica_publica')
+	elif request.user.groups.filter(name='Operador').count() == 1:
+		usuario = request.user
+		persona = Persona.objects.filter(user=usuario).select_related('entidad').first()
+		indicadores = Indicador.objects.filter(entidad=persona.entidad).order_by('id').select_related('politica_publica')
+		politicas = []
+		for indicador in indicadores:
+			if indicador.politica_publica not in politicas:
+				politicas.append(indicador.politica_publica)
+	else:
+		return redirect('cuenta:home')
 
 	vigencia = Vigencia.objects.filter(activo=True).select_related('formulario').first()
 	headers = Pregunta.objects.filter(formulario=vigencia.formulario).order_by('id')
 	formularios = FormularioRespuesta.objects.filter(vigencia=vigencia).prefetch_related('respuesta_set')
 	respuestas = {}
+	niveles = {}
+
+	niveles1 = {
+        '1':'Línea orientadora',
+		'2':'Línea estratégica',
+		'3':'Categoría',
+		'4':'Objetivo estratégico',
+		'5':'Estrategia',
+		'6':'Objetivo de la política',
+	}
+
+	niveles2 = {
+	    '1': 'Categoría de la política',
+	    '2': 'Estrategia',
+	    '3': 'Objetivo de la política',
+	    '4': 'Acciones recomendadas',
+	}
+
+	niveles3 = {
+	    '1': 'Objetivo de la política',
+	    '2': 'Acciones recomendadas',
+	    '3': 'Estrategia',
+	}
+
 	for i in formularios:
 		for j in indicadores:
 			respuestas[j.id] = i.respuesta_set.filter(indicador=j).order_by('pregunta')
-		#respuestas[i.id] = i.respuesta_set.all().order_by('pregunta')
-	#prefetch_related_objects(formularios, 'respuesta')
-	print(headers)
-	print(respuestas)
+			niveles[j.politica_publica.id] = {}
+			nivel1 = Indicador.objects.filter(id=j.id).select_related('nivel1').first()
+			niveles[j.politica_publica.id]['nivel1'] = niveles1[nivel1.nivel1.nivel]
+			nivel2 = Indicador.objects.filter(id=j.id).select_related('nivel2').first()
+			niveles[j.politica_publica.id]['nivel2'] = niveles2[nivel2.nivel2.nivel]
+			nivel3 = Indicador.objects.filter(id=j.id).select_related('nivel3').first()
+			niveles[j.politica_publica.id]['nivel3'] = niveles3[nivel3.nivel3.nivel]
 	
 	if request.user.groups.filter(name='Administrador').count() == 1:
 		extends = 'base/admin_nav.html'
@@ -36,5 +72,6 @@ def reporte_general_view(request):
 													 "politicas": politicas,
 													 "indicadores": indicadores,
 													 "headers": headers,
-													 "respuestas": respuestas
+													 "respuestas": respuestas,
+													 "niveles": niveles
 													 })

@@ -1,5 +1,5 @@
 {% extends extends %}
-
+{% load extra_filters %}
 {% block title %}
 {{ title }}
 {% endblock %}
@@ -23,10 +23,19 @@
    			{% else %}
    				<div class="tab-pane fade" id="{{ politica.id }}">
     		{% endif %}
-   			
-			<table class="table table-striped table-hover dt-responsive nowrap">
+   			<br/>
+			<table id="tabla_{{ politica.id }}" class="table table-striped table-hover dt-responsive nowrap grid">
 				<thead>
 					<tr>
+						{% with index=politica.id %}
+							{% if niveles|return_item:index %}
+								{% with niv=niveles|return_item:index %}
+									<th>{{ niv.nivel1 }}</th>
+									<th>{{ niv.nivel2 }}</th>
+									<th>{{ niv.nivel3 }}</th>
+								{% endwith %}
+							{% endif %}
+						{% endwith %}
 						<th>Indicador</th>
 						{% for header in headers %}
 							<th>{{ header.enunciado }}</th>
@@ -34,22 +43,23 @@
 					</tr>
 				</thead>
 				<tbody>
-					
-						{% for indicador in indicadores %}
-							
-							{% if indicador.politica_publica == politica %}
-								<tr>
-									<td>{{ indicador.nombre }}</td>
-									{% with index=indicador.id %}
-									{{ index }}
-									{% for respuesta in respuestas.index %}
-										<td>{{ respuesta.valor }}</td>
-									{% endfor %}
-									{% endwith %}
-								</tr>
+					{% for indicador in indicadores %}
+						{% with index=indicador.id %}
+							{% if respuestas|return_item:index %}
+								{% if indicador.politica_publica == politica %}
+									<tr>
+										<td>{{ indicador.nivel1 }}</td>
+										<td>{{ indicador.nivel2 }}</td>
+										<td>{{ indicador.nivel3 }}</td>
+										<td>{{ indicador.nombre }}</td>
+										{% for respuesta in respuestas|return_item:index %}
+											<td>{{ respuesta.valor }}</td>
+										{% endfor %}
+									</tr>
+								{% endif %}	
 							{% endif %}
-								
-						{% endfor %}
+						{% endwith %}
+					{% endfor %}
 				</tbody>
 			</table>
 		</div>
@@ -61,10 +71,31 @@
 <script>
 $(document).ready(function () {
 
-	$('#grid').DataTable(
+	$( "table.grid" ).each(function() {
+		$( this ).DataTable(
+
+		{
+
+			"language": {
+
+				"url" : "//cdn.datatables.net/plug-ins/1.10.13/i18n/Spanish.json"
+
+			},
+
+
+			"drawCallback": function () {
+				$('.dataTables_paginate > .pagination').addClass('pagination-sm');
+			}
+
+		}
+
+		);
+
+	});
+
+	/*$('.grid').DataTable(
 
 	{
-		"order": [[ 0, "desc" ]],
 
 		"language": {
 
@@ -79,7 +110,7 @@ $(document).ready(function () {
 
 	}
 
-	);
+	);*/
 });
 </script> 
 {% endblock %}

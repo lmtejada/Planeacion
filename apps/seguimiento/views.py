@@ -15,15 +15,16 @@ from apps.seguimiento.models import (Entidad,
 									 Vigencia, 
 									 Proyecto,
 									 Subprograma,
-									 Programa)
-
+									 Programa,
+									 Nivel1,
+									 Nivel2,
+									 Nivel3)
 
 def inicio(request):
 	politicas = PoliticaPublica.objects.all()
 	entidades = Entidad.objects.all()
 	return render(request, "seguimiento/index.html", {"entidades": entidades,
 													  "politicas": politicas})
-
 def form_view(request):
 	title = "Registrar formulario"
 	respuestas = (request.POST.keys() or None)
@@ -35,7 +36,7 @@ def form_view(request):
 		if fecha_actual >= vigencia.fecha_inicio and fecha_actual <= vigencia.fecha_fin:
 			formulario = Formulario.objects.filter(id=vigencia.formulario.id).prefetch_related('pregunta_set').first()
 			preguntas = formulario.pregunta_set.all()
-			indicadores = Indicador.objects.filter(entidad=persona.entidad)
+			indicadores = Indicador.objects.filter(entidad=persona.entidad).order_by('id')
 			prefetch_related_objects(indicadores, 'politica_publica')
 			politicas = []
 			indicadores_politica = {}
@@ -63,31 +64,37 @@ def form_view(request):
 						else:
 							indicadores_politica[politicaTmp.id]['estado'] = 'Incompleto'
 			else:
-				indicadores_politica = 0;
-				politicas = '';
-				indicadores = '';
-				preguntas = '';
-
+				form = ''
+				indicadores_politica = ''
+				politicas = ''
+				indicadores = ''
+				preguntas = ''
 		else:
-			politicas = 0;
-			indicadores = 0;
-			preguntas = 0;
+			form = 0
+			politicas = 0
+			indicadores = 0
+			preguntas = 0
+			indicadores_politica = 0
 	else:
-		politicas = 0;
-		indicadores = 0;
-		preguntas = 0; 
+		form = 0
+		politicas = 0
+		indicadores = 0
+		preguntas = 0 
+		indicadores_politica = 0
 
 		if persona.entidad is None:
-			politicas = '';
-			indicadores = '';
-			preguntas = '';
+			form = ''
+			politicas = ''
+			indicadores = ''
+			preguntas = ''
+			indicadores_politica = ''
 
 	if request.method == 'POST':
 		if 'enviado' in request.POST:
 			for i in indicadores_politica:
 				if indicadores_politica[i]['objeto'].num_indicadores != indicadores_politica[i]['num_enviados']:
 					messages.add_message(request, messages.ERROR, 'Para enviar el formulario debe diligenciar la información de todos los indicadores.')
-					return render(request, "seguimiento/formulario.html", {"form": form, 
+					return render(request, "seguimiento/formulario.html", {"form": form,
 																		   "politicas": politicas,
 																		   "indicadores": indicadores, 
 																		   "preguntas": preguntas, 
@@ -98,7 +105,7 @@ def form_view(request):
 				if form.estado is None:
 					form.enviado = True
 					form.fecha_envio = timezone.now()
-					form.estado = 'pendiente'
+				form.estado = 'pendiente'
 				form.save()
 				messages.add_message(request, messages.SUCCESS, 'Sus datos han sido enviado con éxito.')
 			else:
@@ -108,6 +115,17 @@ def form_view(request):
 					messages.add_message(request, messages.ERROR, 'El formulario se encuentra en proceso de revisión y no puede ser modificado.')
 		else:
 			if form is not None:
+				if request.POST['indicador']:
+					indicador = Indicador.objects.filter(id=request.POST['indicador']).first()
+				else: 
+					messages.add_message(request, messages.ERROR, 'Se ha presentado un error.')
+					return render(request, "seguimiento/formulario.html", {"form": form,
+																		   "politicas": politicas,
+																		   "indicadores": indicadores, 
+																		   "preguntas": preguntas, 
+																		   "title": title,
+																		   "indicadores_politica": indicadores_politica})
+				
 				for i in respuestas:
 					if i.startswith('valor_'):
 						valor = request.POST[i]
@@ -116,16 +134,6 @@ def form_view(request):
 							respuesta_id = request.POST['respuesta_id_'+data[1]]
 							if respuesta_id == '': 
 								pregunta = Pregunta.objects.filter(id=data[1]).first()
-								if request.POST['indicador']:
-									indicador = Indicador.objects.filter(id=request.POST['indicador']).first()
-								else: 
-									messages.add_message(request, messages.ERROR, 'Se ha presentado un error.')
-									return render(request, "seguimiento/formulario.html", {"form": form, 
-																						   "politicas": politicas,
-																					   	   "indicadores": indicadores, 
-																					       "preguntas": preguntas, 
-																					       "title": title,
-																					      "indicadores_politica": indicadores_politica})
 								respuesta = Respuesta(valor=valor, pregunta=pregunta, indicador=indicador, formulario_respuesta=form)
 								respuesta.save()
 							else:
@@ -133,37 +141,61 @@ def form_view(request):
 
 							if respuesta is None:
 								messages.add_message(request, messages.ERROR, 'Se ha presentado un error.')
-								return render(request, "seguimiento/formulario.html", {"form": form, 
+								return render(request, "seguimiento/formulario.html", {"form": form,
 																					   "politicas": politicas,
 																					   "indicadores": indicadores, 
 																					   "preguntas": preguntas, 
 																					   "title": title,
 																					   "indicadores_politica": indicadores_politica})
+					elif i == 'accion':
+						indicador.accion = request.POST[i]
+					elif i == 'ubicacion':
+						indicador.ubicacion = request.POST[i]
+					elif i == 'soporte':
+						indicador.soporte = request.POST[i]
 
-				indicador = Indicador.objects.filter(id=request.POST['indicador']).first()
-				politicaTmp = PoliticaPublica.objects.filter(indicador__id=indicador.id).first()
-				indicadores_politica[politicaTmp.id]['num_enviados'] += 1
+				indicador.save()
+
+				'''politicaTmp = PoliticaPublica.objects.filter(indicador__id=indicador.id).first()
+
+				if indicadores_politica[politicaTmp.id]['num_enviados'] < indicadores_politica[politicaTmp.id]['objeto'].num_indicadores:
+					indicadores_politica[politicaTmp.id]['num_enviados'] += 1
+
 				if indicadores_politica[politicaTmp.id]['num_enviados'] == indicadores_politica[politicaTmp.id]['objeto'].num_indicadores:
 					indicadores_politica[indicador.politica_publica.id]['estado'] = 'Completo'
 				else:
 					indicadores_politica[indicador.politica_publica.id]['estado'] = 'Incompleto'
+					
+				print (indicadores_politica[politicaTmp.id]['num_enviados'])'''
+
+				tmp = Respuesta.objects.filter(formulario_respuesta=form).select_related('indicador').values('indicador').distinct()
+				for i in tmp:
+					politicaTmp = PoliticaPublica.objects.filter(indicador__id=i['indicador']).first() 
+					indicadores_politica[politicaTmp.id]['num_enviados'] = 0
+				for i in tmp:
+					politicaTmp = PoliticaPublica.objects.filter(indicador__id=i['indicador']).first() 
+					indicadores_politica[politicaTmp.id]['num_enviados'] += 1
+					if indicadores_politica[politicaTmp.id]['num_enviados'] == indicadores_politica[politicaTmp.id]['objeto'].num_indicadores:
+						indicadores_politica[politicaTmp.id]['estado'] = 'Completo'
+					else:
+						indicadores_politica[politicaTmp.id]['estado'] = 'Incompleto'
 				messages.add_message(request, messages.SUCCESS, 'Sus datos han sido guardado correctamente.')
 
 			else:
 				messages.add_message(request, messages.ERROR, 'Se ha presentado un error.')
-				return render(request, "seguimiento/formulario.html", {"form": form, 
+				return render(request, "seguimiento/formulario.html", {"form": form,
 																	   "politicas": politicas,
 																	   "indicadores": indicadores, 
 																	   "preguntas": preguntas, 
 																	   "title": title,
 																	   "indicadores_politica": indicadores_politica})
 
-	return render(request, "seguimiento/formulario.html", {"form": form, 
-												   "politicas": politicas,
-												   "indicadores": indicadores, 
-												   "preguntas": preguntas, 
-												   "title": title,
-												   "indicadores_politica": indicadores_politica})
+	return render(request, "seguimiento/formulario.html", {"form": form,
+															"politicas": politicas,
+												   			"indicadores": indicadores, 
+												   			"preguntas": preguntas, 
+												  			"title": title,
+												   			"indicadores_politica": indicadores_politica})
 
 @csrf_exempt
 def get_data_view(request):
@@ -176,7 +208,6 @@ def get_data_view(request):
 		persona = Persona.objects.filter(user=usuario).select_related('entidad').first()
 		formulario = FormularioRespuesta.objects.filter(entidad=persona.entidad).filter(vigencia=vigencia).first()
 		respuestas = Respuesta.objects.filter(formulario_respuesta=formulario).filter(indicador__id=indicador)
-		#formulario = FormularioRespuesta.objects.filter(indicador__id=indicador).filter(vigencia=vigencia).prefetch_related('respuesta_set').first()
 		indicadorInfo = Indicador.objects.filter(id=indicador).select_related('proyecto').first()
 		proyecto = Proyecto.objects.filter(id=indicadorInfo.proyecto.id).select_related('subprograma').first()
 		subprograma = Subprograma.objects.filter(id=proyecto.subprograma.id).select_related('programa').first()
@@ -187,13 +218,52 @@ def get_data_view(request):
 		response_data['data']['subprograma'] = subprograma.codigo+' - '+subprograma.nombre
 		response_data['data']['programa'] = programa.codigo+' - '+programa.nombre
 		response_data['data']['eje_estrategico'] = programa.eje_estrategico.codigo+' - '+programa.eje_estrategico.nombre
+		
+		indicadorInfo1 = Indicador.objects.filter(id=indicador).select_related('nivel1').first()
+		indicadorInfo2 = Indicador.objects.filter(id=indicador).select_related('nivel2').first()
+		indicadorInfo3 = Indicador.objects.filter(id=indicador).select_related('nivel3').first()
+		
+		niveles1 = {
+	        '1':'Línea orientadora',
+			'2':'Línea estratégica',
+			'3':'Categoría',
+			'4':'Objetivo estratégico',
+			'5':'Estrategia',
+			'6':'Objetivo de la política',
+		}
+
+		niveles2 = {
+		    '1': 'Categoría de la política',
+		    '2': 'Estrategia',
+		    '3': 'Objetivo de la política',
+		    '4': 'Acciones recomendadas',
+		}
+
+		niveles3 = {
+		    '1': 'Objetivo de la política',
+		    '2': 'Acciones recomendadas',
+		    '3': 'Estrategia',
+		}
+
+		response_data['data']['nivel1'] = {}
+		response_data['data']['nivel1']['nombre'] = niveles1[indicadorInfo1.nivel1.nivel]
+		response_data['data']['nivel1']['valor'] = indicadorInfo1.nivel1.texto
+
+		response_data['data']['nivel2'] = {}
+		response_data['data']['nivel2']['nombre'] = niveles2[indicadorInfo2.nivel2.nivel]
+		response_data['data']['nivel2']['valor'] = indicadorInfo2.nivel2.texto
+
+		response_data['data']['nivel3'] = {}
+		response_data['data']['nivel3']['nombre'] = niveles3[indicadorInfo3.nivel3.nivel]
+		response_data['data']['nivel3']['valor'] = indicadorInfo3.nivel3.texto
 
 		if formulario is not None:
-			#respuestas = formulario.respuesta_set.all()
+			response_data['data']['accion'] = indicadorInfo.accion
+			response_data['data']['ubicacion'] = indicadorInfo.ubicacion
+			response_data['data']['soporte'] = indicadorInfo.soporte
 			prefetch_related_objects(respuestas, 'pregunta')
 			response_data['estado'] = formulario.estado
 			response_data['activo'] = formulario.activo
-			#response_data['form_id'] = formulario.id
 			response_data['respuestas'] = {}
 			for i in respuestas:
 				temp = {}

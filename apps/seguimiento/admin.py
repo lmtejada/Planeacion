@@ -11,7 +11,10 @@ from apps.seguimiento.models import (
 	Programa,
 	Subprograma,
 	Proyecto,
-	Vigencia )
+	Vigencia,
+	Nivel1,
+	Nivel2, 
+	Nivel3)
 
 admin.site.register(Entidad)
 admin.site.register(PoliticaPublica)
@@ -25,3 +28,6 @@ admin.site.register(Programa)
 admin.site.register(Subprograma)
 admin.site.register(Proyecto)
 admin.site.register(Vigencia)
+admin.site.register(Nivel1)
+admin.site.register(Nivel2)
+admin.site.register(Nivel3)
