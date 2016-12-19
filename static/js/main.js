@@ -176,3 +176,40 @@ function getCookie(name) {
     }
     return cookieValue;
 }
+
+$('.eliminar').on('click', function(event){   
+    var id = $(this).attr('rel');
+    console.log("id usuario: " + id);
+    eliminarUsuario(id)
+});
+
+function eliminarUsuario(idUsuario) { 
+    $.ajax({
+        url : "/cuenta/eliminar/", 
+        type : "POST", 
+        data : {idUsuario : idUsuario},
+
+        success : function(json) {
+            mostrarMensaje(json, "success"); 
+        },
+
+        error : function(xhr,errmsg,err) {
+            mostrarMensaje(xhr.responseText, "error") 
+            console.log(xhr.status + ": " + xhr.responseText); 
+        }
+    });
+};
+
+function mostrarMensaje(json, status){
+    var obj = JSON.parse(json);
+    //alert(obj.result);   
+    window.location.hash = 'reload';
+    window.location.reload();
+}
+
+document.addEventListener("DOMContentLoaded", function(event){
+    if(window.location.hash == '#reload'){
+        $("#responses").html('<div class="alert alert-success text-center messages" style="opacity: 0.7">El usuario se ha eliminado con éxito</div>');
+        window.location.hash = '';
+    }
+});

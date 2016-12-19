@@ -84,7 +84,7 @@ class Formulario(models.Model):
 
 class Vigencia(models.Model):
 	id = models.AutoField(primary_key=True)
-	periodo = models.CharField(max_length=10, unique=True)
+	periodo = models.CharField(max_length=10)
 	fecha_inicio = models.DateTimeField()
 	fecha_fin = models.DateTimeField()
 	activo = models.BooleanField(default=True)

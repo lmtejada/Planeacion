@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 class Persona(models.Model):
 	id = models.AutoField(primary_key=True)
 	nombre = models.CharField(max_length=200)
+	telefono = models.CharField(max_length=15, null=True)
 	user = models.OneToOneField(User, on_delete=models.CASCADE)
 	entidad = models.ForeignKey(Entidad, on_delete=models.CASCADE)
 

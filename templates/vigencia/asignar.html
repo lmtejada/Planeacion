@@ -1,0 +1,76 @@
+{% extends 'base/admin_nav.html' %}
+{% block title %}
+{{ title }}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+	<div class="col-md-4 col-md-offset-4">
+
+		{% if messages %}
+	    	{% for message in messages %}
+	    		{% if message.tags == 'error' %}
+	    			<div id="messages" class="alert alert-danger text-center" style="opacity: 0.7">{{ message }}</div>
+	    		{% else %}
+	    			<div id="messages" class="alert alert-{{ message.tags }} text-center" style="opacity: 0.7">{{ message }}</div>
+	    		{% endif %}
+	    	{% endfor %}
+		{% endif %}
+
+		
+		<form class="form-horizontal" action="" method="post">
+			{% csrf_token %}
+			<div class="form-group">
+				<label for="anio">Año</label>
+				<select name="anio" class="form-control input-sm">
+					<option value="2010">2010</option>
+					<option value="2011">2011</option>
+					<option value="2012">2012</option>
+					<option value="2013">2013</option>
+					<option value="2014">2014</option>
+					<option value="2015">2015</option>
+					<option value="2016">2016</option>
+					<option value="2017">2017</option>
+					<option value="2018">2018</option>
+					<option value="2019">2019</option>
+					<option value="2020">2020</option>
+					<option value="2021">2021</option>
+					<option value="2022">2022</option>
+					<option value="2023">2023</option>
+					<option value="2024">2024</option>
+					<option value="2025">2025</option>
+				</select>
+			</div>
+			<div class="form-group">
+				<label for="semestre">Semestre</label>
+				<select name="semestre" class="form-control input-sm">
+					<option value="I">I</option>
+					<option value="II">II</option>
+				</select>
+			</div>
+			<div class="form-group">
+				<label for="formulario">Formulario</label>
+				<select name="formulario" class="form-control input-sm">
+					{% for formulario in formularios %}
+				    	<option value="{{ formulario.id }}">{{ formulario.nombre }}</option>
+					{% endfor %}
+				</select>
+				<p class="text-danger">{{ vigenciaform.formulario.errors.0 }}</p>
+			</div>
+			<div class="form-group">
+				<label for="fecha_inicio">Fecha de inicio</label>
+				<input type="date" class="form-control input-sm" name="fecha_inicio">
+				<p class="text-danger">{{ vigenciaform.fecha_inicio.errors.0 }}</p>
+			</div>
+			<div class="form-group">
+				<label for="fecha_fin">Fecha de fin</label>
+				<input type="date" class="form-control input-sm" name="fecha_fin">
+				<p class="text-danger">{{ vigenciaform.fecha_fin.errors.0 }}</p>
+			</div>
+			<div class="form-group text-center">
+				<input type="submit" class="btn btn-sm btn-primary" value="Guardar"/>
+			</div>
+		</form>
+	</div>
+</div>
+{% endblock %}

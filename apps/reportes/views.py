@@ -38,3 +38,21 @@ def reporte_general_view(request):
 													 "headers": headers,
 													 "respuestas": respuestas
 													 })
+
+
+def reporte_general2_view(request):	
+	if request.user.groups.filter(name='Administrador').count() == 1:
+		extends = 'base/admin_nav.html'
+	elif request.user.groups.filter(name='Operador').count() == 1:
+		extends = 'base/user_nav.html'
+		
+	return render(request, "reportes/general2.html", {"extends": extends})
+
+
+def reporte_general3_view(request):	
+	if request.user.groups.filter(name='Administrador').count() == 1:
+		extends = 'base/admin_nav.html'
+	elif request.user.groups.filter(name='Operador').count() == 1:
+		extends = 'base/user_nav.html'
+		
+	return render(request, "reportes/general3.html", {"extends": extends})
