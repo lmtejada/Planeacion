@@ -35,7 +35,7 @@ def form_view(request):
 	if vigencia and persona.entidad is not None:
 		if fecha_actual >= vigencia.fecha_inicio and fecha_actual <= vigencia.fecha_fin:
 			formulario = Formulario.objects.filter(id=vigencia.formulario.id).prefetch_related('pregunta_set').first()
-			preguntas = formulario.pregunta_set.all()
+			preguntas = formulario.pregunta_set.all().order_by('id')
 			indicadores = Indicador.objects.filter(entidad=persona.entidad).order_by('id')
 			prefetch_related_objects(indicadores, 'politica_publica')
 			politicas = []
