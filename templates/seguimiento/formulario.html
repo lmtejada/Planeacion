@@ -37,7 +37,7 @@
 
 		<div class="tab-content ">
 			<div class="tab-pane fade in active" id="resumen">
-				<h3 class="text-center">Estado del formulario</h3>
+				<!-- <h3 class="text-center">Estado del formulario</h3>
 				{% if not form.estado %}
 					<label>Calificación</label><p>No enviado</p>
 				{% else %}
@@ -51,7 +51,7 @@
 							<label>Observaciones</label><p>{{ form.observaciones }}</p>
 						{% endif %}
 					{% endif %}
-				{% endif %}
+				{% endif %} -->
 				<h3 class="text-center">Resumen de indicadores</h3>
 				<table class="table table-striped table-hover ">
 					<thead>
@@ -60,6 +60,8 @@
 							<th>Cantidad de indicadores</th>
 							<th>Indicadores diligenciados</th>
 							<th>Estado</th>
+							<th>Calificación</th>
+							<th>Enviar</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -69,14 +71,31 @@
 							<td>{{ value.objeto.num_indicadores }}</td>
 							<td>{{ value.num_enviados }}</td>
 							<td>{{ value.estado }}</td>
+							{% if value.calificacion.estado == 'pendiente' %}
+								<td>Pendiente</td>
+							{% else %}
+								{% if value.calificacion.estado == 'aprobado' %}
+									<td>Aprobado</td>
+								{% else %}
+									{% if value.calificacion.estado == 'no_aprobado' %}
+										<td>No aprobado</td>
+									{% else %}
+										{% if value.calificacion.estado is None %}
+											<td>No enviado</td>
+										{% endif %}
+									{% endif %}
+								{% endif %}
+							{% endif %}
+							<td>
+								<form id="formulario_envio_{{ value.objeto.id }}" class="form-horizontal formulario" action="" method="post">
+									{% csrf_token %}
+									<input type="button" class="btn btn-sm btn-primary enviar" value="Enviar"/>
+								</form>
+							</td>
 						</tr>
 						{% endfor %}
 					</tbody>
 				</table>
-				<form id="formulario_envio" class="form-horizontal formulario" action="" method="post">
-					{% csrf_token %}
-					<input id="enviar" type="button" class="btn btn-sm btn-primary" value="Enviar"/>
-				</form>
 			</div>
 			{% for politica in politicas %}
 	   			<div class="tab-pane fade" id="{{ politica.id }}"> 
@@ -88,6 +107,7 @@
 					</div>
 					<div>
 						<form id = "formulario_{{ politica.id }}" class="form-horizontal formulario" action="" method="post">
+							<input type="hidden" id="form_{{ politica.id }}" name="form">
 							{% csrf_token %}
 							<div class="form-group col-md-12">
 								<label for="indicador">Indicador</label>
@@ -99,18 +119,6 @@
 										{% endif %}
 									{% endfor %}
 								</select>
-							</div>
-							<div class="form-group col-md-12">
-								<label for="accion">Acción</label>
-								<input type="text" id="accion_{{ politica.id }}" class="form-control input-sm" name="accion">
-							</div>
-							<div class="form-group col-md-12">
-								<label for="ubicacion">Ubicación</label>
-								<input type="text" id="ubicacion_{{ politica.id }}" class="form-control input-sm" name="ubicacion">
-							</div>
-							<div class="form-group col-md-12">
-								<label for="soporte">Soporte</label>
-								<input type="text" id="soporte_{{ politica.id }}" class="form-control input-sm" name="soporte">
 							</div>
 							{% for pregunta in preguntas %}
 								{% if forloop.counter0 != 0%}

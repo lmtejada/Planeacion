@@ -44,19 +44,24 @@ $('.guardar').on('click', function(event){
     } 
 
     if(enviar){
+        $('#'+id).append("<input type='hidden' name='politica' value='"+politica_id+"'/>");
         var csrftoken = getCookie('csrftoken');
         $('input[name=csrfmiddlewaretoken]').val(csrftoken);
         $(form).submit();
     }
 });
 
-$('#enviar').on('click', function(event){	
+$('.enviar').on('click', function(event){	
     event.preventDefault();
     var form = $(this).parents('.formulario');
     var id = $(form).attr('id');
-   
+    var tmp = id.split('_');
+    tmp = tmp[2]
+
     $('#'+id).append("<input type='hidden' name='enviado' value='true'/>");
+    $('#'+id).append("<input type='hidden' name='politica' value='"+tmp+"'/>");
     //$('#'+id).append("<input type='hidden' name='activo' value='false'/>");
+
     var csrftoken = getCookie('csrftoken');
     $('input[name=csrfmiddlewaretoken]').val(csrftoken);
     $(form).submit();
@@ -112,7 +117,7 @@ function cargarData(indicador_id, formulario_id) {
     $.ajax({
         url : "/seguimiento/get_data/", 
         type : "POST", 
-        data : {indicador : indicador_id},
+        data : {indicador : indicador_id, politica : formulario_id},
 
         success : function(json) {
             llenarFormulario(json, formulario_id); 
@@ -148,10 +153,6 @@ function llenarFormulario(json, politica_id){
             $(this).val('');
         });
     } else {
-        console.log(obj['data']['accion']);
-        $("#accion_"+politica_id).val(obj['data']['accion']);
-        $("#ubicacion_"+politica_id).val(obj['data']['ubicacion']);
-        $("#soporte_"+politica_id).val(obj['data']['soporte']);
         for(var key in respuestas) {
             $("#respuesta_"+politica_id+"_"+respuestas[key].pregunta_id).val(respuestas[key].respuesta_id);
             $("#valor_"+politica_id+"_"+respuestas[key].pregunta_id).val(respuestas[key].valor);

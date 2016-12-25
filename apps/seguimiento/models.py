@@ -119,9 +119,10 @@ class FormularioRespuesta(models.Model):
 	observaciones = models.TextField(null=True)
 	entidad = models.ForeignKey(Entidad, on_delete=models.PROTECT)
 	vigencia = models.ForeignKey(Vigencia, on_delete=models.PROTECT)
+	politica_publica = models.ForeignKey(PoliticaPublica, on_delete=models.PROTECT, null=True)
 
 	def __str__(self):
-		return '{} - {} - {}'.format(self.entidad, self.vigencia, self.fecha_envio)
+		return '{} - {} - {}'.format(self.entidad, self.politica_publica, self.vigencia)
 
 class Pregunta(models.Model):
 	id = models.AutoField(primary_key=True)
@@ -163,9 +164,6 @@ class Nivel3(models.Model):
 class Indicador(models.Model):
 	id = models.AutoField(primary_key=True)
 	nombre = models.CharField(max_length=200)
-	accion = models.TextField(null=True)
-	soporte = models.TextField(null=True)
-	ubicacion = models.TextField(null=True)
 	politica_publica = models.ForeignKey(PoliticaPublica, on_delete=models.CASCADE) 
 	entidad = models.ManyToManyField(Entidad)
 	proyecto = models.ForeignKey(Proyecto, on_delete=models.CASCADE)
