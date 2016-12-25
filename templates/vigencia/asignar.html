@@ -4,7 +4,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container well">
 	<div class="col-md-4 col-md-offset-4">
 
 		{% if messages %}
@@ -68,7 +68,7 @@
 				<p class="text-danger">{{ vigenciaform.fecha_fin.errors.0 }}</p>
 			</div>
 			<div class="form-group text-center">
-				<input type="submit" class="btn btn-sm btn-primary" value="Guardar"/>
+				<input type="submit" class="btn btn-sm btn-info" value="Guardar"/>
 			</div>
 		</form>
 	</div>

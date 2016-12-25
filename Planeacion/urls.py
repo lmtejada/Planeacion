@@ -24,4 +24,5 @@ urlpatterns = [
     url(r'^consultas/', include('apps.consultas.urls', namespace='consultas')),
     url(r'^reportes/', include('apps.reportes.urls', namespace='reportes')),
     url(r'^vigencia/', include('apps.vigencia.urls', namespace='vigencia')),
+    url(r'^contacto/', include('apps.contacto.urls', namespace='contacto')),
 ]
