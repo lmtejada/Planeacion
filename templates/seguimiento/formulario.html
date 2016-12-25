@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container well">
 	{% if politicas == 0%}
     <div class="jumbotron text-center">
 	<h1>Aviso</h1>
@@ -75,7 +75,7 @@
 				</table>
 				<form id="formulario_envio" class="form-horizontal formulario" action="" method="post">
 					{% csrf_token %}
-					<input id="enviar" type="button" class="btn btn-sm btn-primary" value="Enviar"/>
+					<input id="enviar" type="button" class="btn btn-sm btn-info" value="Enviar"/>
 				</form>
 			</div>
 			{% for politica in politicas %}
@@ -159,7 +159,7 @@
 								</div>
 							{% endfor %}
 							<div class="form-group text-center col-md-12">
-								<input id="guardar_{{ politica.id }}" type="button" class="btn btn-sm btn-primary guardar" value="Guardar"/>
+								<input id="guardar_{{ politica.id }}" type="button" class="btn btn-sm btn-info guardar" value="Guardar"/>
 							</div>
 						</form>
 					</div>
