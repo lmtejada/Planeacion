@@ -173,11 +173,11 @@ class Respuesta(models.Model):
 	def __str__(self):
 		return '{}'.format(self.valor)
 
-class Observaciones(models.Model):
+class Observacion(models.Model):
 	id = models.AutoField(primary_key=True)
 	observacion = models.TextField()
 	formulario_respuesta = models.ForeignKey(FormularioRespuesta, on_delete=models.PROTECT)
 	indicador = models.ForeignKey(Indicador, on_delete=models.PROTECT)
 
 	def __str__(self):
-		return '{}'.format(self.nombre)	
+		return '{}'.format(self.observacion)	
