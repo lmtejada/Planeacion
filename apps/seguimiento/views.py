@@ -18,7 +18,8 @@ from apps.seguimiento.models import (Entidad,
 									 Programa,
 									 Nivel1,
 									 Nivel2,
-									 Nivel3)
+									 Nivel3,
+									 Observacion)
 
 def inicio(request):
 	politicas = PoliticaPublica.objects.all()
@@ -44,6 +45,7 @@ def form_view(request):
 			politicas = []
 			forms = {}
 			indicadores_politica = {}
+			observaciones = {}
 			if len(indicadores) > 0:
 				for indicador in indicadores:
 					if indicador.politica_publica not in politicas:
@@ -71,6 +73,13 @@ def form_view(request):
 								indicadores_politica[politicaTmp.id]['estado'] = 'Completo'
 							else:
 								indicadores_politica[politicaTmp.id]['estado'] = 'Incompleto'
+
+					obs = Observacion.objects.filter(formulario_respuesta__id=f.id).filter(indicador=indicador).select_related('formulario_respuesta').first()
+					if obs is not None:
+						if indicador.politica_publica.id not in observaciones:
+							observaciones[indicador.politica_publica.id] = {}
+						observaciones[indicador.politica_publica.id][obs.id] = obs
+
 
 						'''tmp = PoliticaPublica.objects.filter(id=indicador.politica_publica.id).annotate(num_indicadores=Count('indicador')).first()
 						tmp2 = FormularioRespuesta.objects.filter(id=forms[indicador.politica_publica.id].id).prefetch_related('respuesta_set').values('respuesta__indicador').distinct().annotate(num_enviados=Count('respuesta__indicador')).first()
@@ -122,7 +131,8 @@ def form_view(request):
 																			   "indicadores_politica": indicadores_politica,
 																			   "ejes": ejes,
 																			   "programas": programas,
-																   			   "subprogramas": subprogramas})
+																   			   "subprogramas": subprogramas,
+																   			   "observaciones": observaciones})
 				else:
 					messages.add_message(request, messages.ERROR, 'Se ha presentado un error.')
 					return render(request, "seguimiento/formulario.html", {"politicas": politicas,
@@ -132,7 +142,8 @@ def form_view(request):
 																		   "indicadores_politica": indicadores_politica,
 																		   "ejes": ejes,
 																		   "programas": programas,
-															   			   "subprogramas": subprogramas})
+															   			   "subprogramas": subprogramas,
+															   			   "observaciones": observaciones})
 			else:
 				messages.add_message(request, messages.ERROR, 'Se ha presentado un error.')
 				return render(request, "seguimiento/formulario.html", {"politicas": politicas,
@@ -142,7 +153,8 @@ def form_view(request):
 																	   "indicadores_politica": indicadores_politica,
 																	   "ejes": ejes,
 																	   "programas": programas,
-															   		   "subprogramas": subprogramas})
+															   		   "subprogramas": subprogramas,
+															   		   "observaciones": observaciones})
 
 			if int(request.POST['politica']) in forms:
 				formRespuesta = forms[int(request.POST['politica'])]
@@ -155,7 +167,8 @@ def form_view(request):
 																	   "indicadores_politica": indicadores_politica,
 																	   "ejes": ejes,
 																	   "programas": programas,
-															   		   "subprogramas": subprogramas})
+															   		   "subprogramas": subprogramas,
+															   		   "observaciones": observaciones})
 
 			if formRespuesta.activo:
 				formRespuesta.activo=False
@@ -185,7 +198,8 @@ def form_view(request):
 																		   "indicadores_politica": indicadores_politica,
 																		   "ejes": ejes,
 																		   "programas": programas,
-															   			   "subprogramas": subprogramas})
+															   			   "subprogramas": subprogramas,
+															   			   "observaciones": observaciones})
 			else:
 				messages.add_message(request, messages.ERROR, 'Se ha presentado un error.')
 				return render(request, "seguimiento/formulario.html", {"politicas": politicas,
@@ -195,7 +209,8 @@ def form_view(request):
 																	   "indicadores_politica": indicadores_politica,
 																	   "ejes": ejes,
 																	   "programas": programas,
-															   		   "subprogramas": subprogramas})
+															   		   "subprogramas": subprogramas,
+															   		   "observaciones": observaciones})
 			if formRespuesta is not None:
 				if 'indicador' in request.POST:
 					indicador = Indicador.objects.filter(id=request.POST['indicador']).first()
@@ -208,7 +223,8 @@ def form_view(request):
 																			   "indicadores_politica": indicadores_politica,
 																			   "ejes": ejes,
 																			   "programas": programas,
-															   				   "subprogramas": subprogramas})
+															   				   "subprogramas": subprogramas,
+															   				   "observaciones": observaciones})
 				else: 
 					messages.add_message(request, messages.ERROR, 'Se ha presentado un error.')
 					return render(request, "seguimiento/formulario.html", {"politicas": politicas,
@@ -218,7 +234,8 @@ def form_view(request):
 																		   "indicadores_politica": indicadores_politica,
 																		   "ejes": ejes,
 																		   "programas": programas,
-															   			   "subprogramas": subprogramas})
+															   			   "subprogramas": subprogramas,
+															   			   "observaciones": observaciones})
 				
 				for i in respuestas:
 					if i.startswith('valor_'):
@@ -236,7 +253,8 @@ def form_view(request):
 																					   "indicadores_politica": indicadores_politica,
 																					   "ejes": ejes,
 																					   "programas": programas,
-															   						   "subprogramas": subprogramas})
+															   						   "subprogramas": subprogramas,
+															   						   "observaciones": observaciones})
 							if respuesta_id == '': 
 								pregunta = Pregunta.objects.filter(id=data[1]).first()
 								respuesta = Respuesta(valor=valor, pregunta=pregunta, indicador=indicador, formulario_respuesta=formRespuesta)
@@ -253,7 +271,8 @@ def form_view(request):
 																					   "indicadores_politica": indicadores_politica,
 																					   "ejes": ejes,
 																					   "programas": programas,
-															   						   "subprogramas": subprogramas})
+															   						   "subprogramas": subprogramas,
+															   						   "observaciones": observaciones})
 
 				resp = Respuesta.objects.filter(formulario_respuesta=formRespuesta).select_related('indicador').values('indicador').distinct()
 				for i in resp:
@@ -278,7 +297,8 @@ def form_view(request):
 															   			"indicadores_politica": indicadores_politica,
 															   			"ejes": ejes,
 															   			"programas": programas,
-															   			"subprogramas": subprogramas})
+															   			"subprogramas": subprogramas,
+															   			"observaciones": observaciones})
 
 	return render(request, "seguimiento/formulario.html", {"politicas": politicas,
 												   			"indicadores": indicadores, 
@@ -287,7 +307,8 @@ def form_view(request):
 												   			"indicadores_politica": indicadores_politica,
 												   			"ejes": ejes,
 												   			"programas": programas,
-												   			"subprogramas": subprogramas})
+												   			"subprogramas": subprogramas,
+												   			"observaciones": observaciones})
 
 @csrf_exempt
 def get_data_view(request):

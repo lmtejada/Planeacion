@@ -93,14 +93,35 @@ $('.indicadores').on('change', function(event){
     }
 });
 
+$('.indicador_respuesta').on('change', function(event){ 
+    var value = $(this).val();
+    var id = $(this).attr('id');
+    id = id.split('_');
+    id = id[1];
+    $("#data_"+id).html('');
+    $("#data_"+id).hide();
+    $("#wrapper_"+id).hide();
+    if(value != 'null'){
+        $('#errors_'+id).html('');
+        $('#errors_'+id).hide();
+        cargarDataRespuesta(value, id);
+    } else {
+        var form = "formulario_"+id;
+        $(':input:not([name=indicador])', '#'+form).each(function() {
+            $(this).prop('disabled', false);
+        });
+        $(':input:not([type=button])', '#'+form).each(function() {
+            if(!$(this).is('select'))
+                $(this).val('');
+            else
+                $(this).val('null');
+        });
+        $("#observaciones").val('');
+    }
+});
+
 $('#calificacion').on('change', function(event){
     $("#mensajes").html(''); 
-    var value = $(this).val();
-    if(value == 'no_aprobado'){
-        $("#observaciones").html('<label for="observaciones">Observaciones</label><textarea rows="4" class="form-control" name="observaciones"></textarea>');
-    } else {
-        $("#observaciones").html('');
-    }
 });
 
 $('#calificar').on('click', function(event){   
@@ -111,7 +132,36 @@ $('#calificar').on('click', function(event){
         $('input[name=csrfmiddlewaretoken]').val(csrftoken);
         $(form).submit();
     } else {
-        $("#mensajes").html('<div class="alert alert-danger text-center messages" style="opacity: 0.7">Debe seleccionar una calificación</div>');
+        $("#mensajes").html('<div class="alert alert-danger text-center messages">Debe seleccionar una calificación</div>');
+    }
+});
+
+$('.observaciones').on('click', function(event){   
+    event.preventDefault();
+    var enviar = true;
+    var form = $(this).parents('form');
+    var id = $(this).attr('id');
+    var tmp = id.split('_');
+    tmp = tmp[1]
+    var valor = $("#indicador_"+tmp).val();
+
+    if($("#observaciones").val() == ''){
+        $("#mensajes").html('<div class="alert alert-danger text-center messages">Debe ingresar una observación</div>');
+        window.scrollTo(0,0);
+        enviar = false;
+    }
+
+    if(valor == 'null'){
+        $("#mensajes").html('<div class="alert alert-danger text-center messages">Debe seleccionar un indicador</div>');
+        window.scrollTo(0,0);
+        enviar = false;
+    }
+
+    if(enviar){
+        $(form).append("<input type='hidden' name='indicador' value='"+valor+"'/>");
+        var csrftoken = getCookie('csrftoken');
+        $('input[name=csrfmiddlewaretoken]').val(csrftoken);
+        $(form).submit();
     }
 });
 
@@ -120,6 +170,23 @@ function cargarData(indicador_id, formulario_id) {
         url : "/seguimiento/get_data/", 
         type : "POST", 
         data : {indicador : indicador_id, politica : formulario_id},
+
+        success : function(json) {
+            llenarFormulario(json, formulario_id); 
+        },
+
+        error : function(xhr,errmsg,err) {
+            $('#errors_'+formulario_id).html("<p>Error al cargar los datos. Por favor actualice la página e intente nuevamente.</p>"); 
+            console.log(xhr.status + ": " + xhr.responseText); 
+        }
+    });
+};
+
+function cargarDataRespuesta(indicador_id, formulario_id) { 
+    $.ajax({
+        url : "/consultas/get_data/", 
+        type : "POST", 
+        data : {indicador : indicador_id, formulario : formulario_id},
 
         success : function(json) {
             llenarFormulario(json, formulario_id); 
@@ -178,6 +245,12 @@ function llenarFormulario(json, politica_id){
         });
     }
 
+    if(obj['observaciones']){
+        $("#observaciones").val(obj['observaciones']);
+    } else {
+         $("#observaciones").val('');
+    }
+
     if($("#"+id).hasClass('detalle')){
         $(':input:not([name=indicador])', '#'+id).each(function() {
             $(this).prop('disabled', true); 
@@ -202,7 +275,6 @@ function getCookie(name) {
 
 $('.eliminar').on('click', function(event){   
     var id = $(this).attr('rel');
-    console.log("id usuario: " + id);
     eliminarUsuario(id)
 });
 

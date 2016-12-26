@@ -18,9 +18,9 @@
 	{% if messages %}
 	    {% for message in messages %}
 	    	{% if message.tags == 'error' %}
-	    		<div class="alert alert-danger text-center messages" style="opacity: 0.7">{{ message }}</div>
+	    		<div class="alert alert-danger text-center messages">{{ message }}</div>
 	    	{% else %}
-	    		<div class="alert alert-{{ message.tags }} text-center messages" style="opacity: 0.7">{{ message }}</div>
+	    		<div class="alert alert-{{ message.tags }} text-center messages">{{ message }}</div>
 	    	{% endif %}
 	    {% endfor %}
 	{% endif %}
@@ -50,14 +50,20 @@
 				<form id="formulario_calificar" class="form-horizontal formulario" action="" method="post">
 					{% csrf_token %}
 					<div class="form-group">
+						<label>Entidad</label>
+						<p>{{ form.entidad }}</p>
+						<label>Período</label>
+						<p>{{ form.vigencia }}</p>
+						<label>Fecha de envío</label>
+						<p>{{ form.fecha_envio }}</p>
+					</div>
+					<div class="form-group">
 						<label for="calificacion">Calificación</label>
 						<select id="calificacion" name="estado" class="form-control input-sm">
 							<option value="null">Ninguno</option>
 							<option value="aprobado">Aprobado</option>
 							<option value="no_aprobado">No aprobado</option>
 						</select>
-					</div>
-					<div id="observaciones" class="form-group">
 					</div>	
 					<div class="form-group text-center">
 						<input id="calificar" type="button" class="btn btn-sm btn-info" value="Enviar"/>
@@ -75,7 +81,7 @@
    			{% else %}
    				<div class="tab-pane fade" id="{{ politica.id }}">
    			{% endif %}	
-
+   				<input type="hidden" id="form_{{ politica.id }}" name="form_id" value="{{ form.id }}">
 				<h3 class="text-center">  {{ politica.nombre }} </h3>
 				<hr/>
 				<div id="data_{{ politica.id }}" class="data" style="display:none"></div>
@@ -85,7 +91,7 @@
 						{% csrf_token %}
 						<div class="form-group col-md-12">
 							<label for="indicador">Indicador</label>
-							<select id="indicador_{{ politica.id }}" name="indicador" class="form-control input-sm indicadores">
+							<select id="indicador_{{ politica.id }}" name="indicador" class="form-control input-sm indicador_respuesta">
 								<option value="null">Ninguno</option>
 								{% for indicador in indicadores %}
 									{% if indicador.politica_publica == politica %}
@@ -99,8 +105,7 @@
 								{% with preguntas|prev:forloop.counter0 as prev %}
 									{% if pregunta.grupo != prev.grupo %}
 										{% if pregunta.grupo == '1' %}
-											<hr/><h3>Plan de desarrollo</h3><hr/>
-											<div class="col-md-12"></div>
+											<div class="col-md-12"><hr/><h3>Plan de desarrollo</h3><hr/></div>
 										{% endif %}
 										{% if pregunta.grupo == '2' %}
 											<hr/><h3>Información general</h3><hr/>
@@ -134,7 +139,7 @@
 									<div class="col-md-12"></div>
 								{% endif %}
 							{% endif %}
-							{% if pregunta.grupo == '3' %}
+							{% if pregunta.grupo == '4' %}
 								<div class="form-group col-md-6" style="margin-right: 10px;">
 							{% else %}
 								<div class="form-group col-md-12" style="margin-right: 10px;">
@@ -147,6 +152,16 @@
 								{% endif %}
 							</div>
 						{% endfor %}
+					</form>
+					<form action="" method="post">
+						{% csrf_token %}
+						<div class="form-group col-md-12">
+							<h3>Observaciones</h3><hr/>
+							<textarea rows="4" class="form-control" name="observaciones" id="observaciones"></textarea>
+						</div>
+						<div class="form-group text-center col-md-12">
+							<input id="observaciones_{{ politica.id }}" type="button" class="btn btn-sm btn-info observaciones" value="Guardar"/>
+						</div>
 					</form>
 				</div>
 			</div>
