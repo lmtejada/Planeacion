@@ -48,9 +48,24 @@
 							{% if respuestas|return_item:index %}
 								{% if indicador.politica_publica == politica %}
 									<tr>
-										<td>{{ indicador.nivel1 }}</td>
-										<td>{{ indicador.nivel2 }}</td>
-										<td>{{ indicador.nivel3 }}</td>
+										{% if indicador.nivel1 is not None %}
+											<td>{{ indicador.nivel1 }}</td>
+										{% else %}
+											<td>No registrado</td>
+										{% endif %}
+
+										{% if indicador.nivel2 is not None %}
+											<td>{{ indicador.nivel2 }}</td>
+										{% else %}
+											<td>No registrado</td>
+										{% endif %}
+
+										{% if indicador.nivel3 is not None %}
+											<td>{{ indicador.nivel3 }}</td>
+										{% else %}
+											<td>No registrado</td>
+										{% endif %}
+										
 										<td>{{ indicador.nombre }}</td>
 										{% for respuesta in respuestas|return_item:index %}
 											<td>{{ respuesta.valor }}</td>
