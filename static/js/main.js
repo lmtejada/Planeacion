@@ -33,7 +33,7 @@ $('.guardar').on('click', function(event){
     } else {
         $(':input:not([type=button])', '#'+id).each(function() {
             if(!$(this).is(':hidden')){
-                if(this.value == ''){
+                if(this.value == '' || this.value == 'null'){
                     enviar = false;
                     $('#errors_'+politica_id).html("<p>Para guardar el formulario debe diligenciar todos los campos.</p>"); 
                     $('#errors_'+politica_id).show();
@@ -87,6 +87,8 @@ $('.indicadores').on('change', function(event){
 	    $(':input:not([type=button])', '#'+form).each(function() {
 			if(!$(this).is('select'))
                 $(this).val('');
+            else
+                $(this).val('null');
 		});
     }
 });
@@ -134,23 +136,22 @@ function llenarFormulario(json, politica_id){
 	var obj = JSON.parse(json);
     var id = "formulario_"+politica_id;
     console.log(obj);
-    $("#data_"+politica_id).html("<h3>Plan de desarrollo</h3><hr/>"+
-                                 "<div class='row'><div class='col-md-6'><label>Eje estratégico</label><p>"+obj['data']['eje_estrategico']+"</p></div>"+
-                                 "<div class='col-md-6'><label>Programa</label><p>"+obj['data']['programa']+"</p></div></div>"+
-                                 "<div class='row'><div class='col-md-6'><label>Subprograma</label><p>"+obj['data']['subprograma']+"</p></div>"+
-                                 "<div class='col-md-6'><label>Proyecto</label><p>"+obj['data']['proyecto']+"</p></div></div>"+
-                                 "<hr/><h3>Información de la política</h3><hr/>"+
-                                 "<div class='row'><div class='col-md-6'><label>"+obj['data']['nivel1'].nombre+"</label><p>"+obj['data']['nivel1'].valor+"</p></div>"+
-                                 "<div class='col-md-6'><label>"+obj['data']['nivel2'].nombre+"</label><p>"+obj['data']['nivel2'].valor+"</p></div></div>"+
-                                 "<div class='row'><div class='col-md-6'><label>"+obj['data']['nivel3'].nombre+"</label><p>"+obj['data']['nivel3'].valor+"</p></div></div>");
+    $("#data_"+politica_id).html("<h3>Información de la política</h3><hr/>"+
+                                 "<div class='row'><div class='col-md-12'><label>"+obj['data']['nivel1'].nombre+"</label><p>"+obj['data']['nivel1'].valor+"</p></div></div>"+
+                                 "<div class='row'><div class='col-md-12'><label>"+obj['data']['nivel2'].nombre+"</label><p>"+obj['data']['nivel2'].valor+"</p></div></div>"+
+                                 "<div class='row'><div class='col-md-12'><label>"+obj['data']['nivel3'].nombre+"</label><p>"+obj['data']['nivel3'].valor+"</p></div></div>"+
+                                 "<div class='row'><div class='col-md-12'><label>Acción</label><p>"+obj['data']['accion']+"</p></div></div>"+
+                                 "<div class='row'><div class='col-md-12'><label>Meta de la política</label><p>"+obj['data']['meta']+"</p></div></div>");
     $("#data_"+politica_id).show();
     $("#wrapper_"+politica_id).show();
 
     var respuestas = obj['respuestas'];
     if(jQuery.isEmptyObject(respuestas)){
-        $(':input:not([type=button], [name=form_id])', '#'+id).each(function() {
+        $(':input:not([type=button], [name=form_id], [name=indicador])', '#'+id).each(function() {
         if(!$(this).is('select'))
             $(this).val('');
+        else
+            $(this).val('null');
         });
     } else {
         for(var key in respuestas) {
@@ -224,7 +225,6 @@ function eliminarUsuario(idUsuario) {
 
 function mostrarMensaje(json, status){
     var obj = JSON.parse(json);
-    //alert(obj.result);   
     window.location.hash = 'reload';
     window.location.reload();
 }

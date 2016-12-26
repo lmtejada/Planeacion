@@ -10,7 +10,6 @@ from apps.seguimiento.models import (
 	EjeEstrategico,
 	Programa,
 	Subprograma,
-	Proyecto,
 	Vigencia,
 	Nivel1,
 	Nivel2, 
@@ -26,7 +25,6 @@ admin.site.register(Respuesta)
 admin.site.register(EjeEstrategico)
 admin.site.register(Programa)
 admin.site.register(Subprograma)
-admin.site.register(Proyecto)
 admin.site.register(Vigencia)
 admin.site.register(Nivel1)
 admin.site.register(Nivel2)

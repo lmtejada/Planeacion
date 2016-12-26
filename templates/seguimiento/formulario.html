@@ -19,39 +19,26 @@
 			<p>Por favor verifique la entidad a la que pertenece y las políticas asociadas. Contacte al administrador. </p>
 		</div>
 		{% else %}
-		{% if messages %}
-		    {% for message in messages %}
-		    	{% if message.tags == 'error' %}
-		    		<div class="alert alert-danger text-center messages" style="opacity: 0.7">{{ message }}</div>
-		    	{% else %}
-		    		<div class="alert alert-{{ message.tags }} text-center messages" style="opacity: 0.7">{{ message }}</div>
-		    	{% endif %}
-		    {% endfor %}
-		{% endif %}
 		<ul class="nav nav-tabs">
 			<li class="active"><a data-toggle="tab" href="#resumen">Resumen</a> </li>
 			{% for politica in politicas %}
 	   			<li> <a data-toggle="tab" href="#{{ politica.id }}">{{ politica.alias }}</a> </li>
 			{% endfor %}
 		</ul>
+		{% if messages %}
+		    {% for message in messages %}
+		    	{% if message.tags == 'error' %}
+		    		<br/>
+		    		<div class="alert alert-danger text-center messages">{{ message }}</div>
+		    	{% else %}
+		    		<br/>
+		    		<div class="alert alert-{{ message.tags }} text-center messages">{{ message }}</div>
+		    	{% endif %}
+		    {% endfor %}
+		{% endif %}
 
 		<div class="tab-content ">
 			<div class="tab-pane fade in active" id="resumen">
-				<!-- <h3 class="text-center">Estado del formulario</h3>
-				{% if not form.estado %}
-					<label>Calificación</label><p>No enviado</p>
-				{% else %}
-					{% if form.estado == 'aprobado' %}
-						<label>Calificación</label><p>Aprobado</p>
-					{% else %}
-						{% if form.estado == 'pendiente' %}
-							<label>Calificación</label><p>Pendiente</p>
-						{% else %}
-							<label>Calificación</label><p>No aprobado</p>
-							<label>Observaciones</label><p>{{ form.observaciones }}</p>
-						{% endif %}
-					{% endif %}
-				{% endif %} -->
 				<h3 class="text-center">Resumen de indicadores</h3>
 				<table class="table table-striped table-hover ">
 					<thead>
@@ -80,7 +67,7 @@
 									{% if value.calificacion.estado == 'no_aprobado' %}
 										<td>No aprobado</td>
 									{% else %}
-										{% if value.calificacion.estado is None %}
+										{% if value.calificacion.estado is None or value.calificacion.estado == '' %}
 											<td>No enviado</td>
 										{% endif %}
 									{% endif %}
@@ -99,12 +86,13 @@
 			</div>
 			{% for politica in politicas %}
 	   			<div class="tab-pane fade" id="{{ politica.id }}"> 
+	   				<br/>
+	   				<div id="errors_{{ politica.id }}" class="alert alert-dismissible alert-danger text-center errors" style=" display: none;">
+					</div>
 					<h3 class="text-center">  {{ politica.nombre }} </h3>
 					<hr/>
 					<div id="data_{{ politica.id }}" class="data" style="display:none"></div>
 					<hr id="wrapper_{{ politica.id }}" class="data-wrapper" style="display:none"/>
-					<div id="errors_{{ politica.id }}" class="alert alert-dismissible alert-danger text-center errors" style="opacity: 0.7; display: none;">
-					</div>
 					<div>
 						<form id = "formulario_{{ politica.id }}" class="form-horizontal formulario" action="" method="post">
 							<input type="hidden" id="form_{{ politica.id }}" name="form">
@@ -125,14 +113,18 @@
 									{% with preguntas|prev:forloop.counter0 as prev %}
 										{% if pregunta.grupo != prev.grupo %}
 											{% if pregunta.grupo == '1' %}
-												<hr/><h3>Información general</h3><hr/>
+												<hr/><h3>Plan de desarrollo</h3><hr/>
 												<div class="col-md-12"></div>
 											{% endif %}
 											{% if pregunta.grupo == '2' %}
-												<hr/><h3>Recursos</h3><hr/>
+												<hr/><h3>Información general</h3><hr/>
 												<div class="col-md-12"></div>
 											{% endif %}
 											{% if pregunta.grupo == '3' %}
+												<hr/><h3>Recursos</h3><hr/>
+												<div class="col-md-12"></div>
+											{% endif %}
+											{% if pregunta.grupo == '4' %}
 												<hr/><h3>Población atendida</h3><hr/>
 												<div class="col-md-12"></div>
 											{% endif %}
@@ -140,29 +132,60 @@
 									{% endwith %}
 								{% else %}
 									{% if pregunta.grupo == '1' %}
-										<hr/><h3>Información general</h3><hr/>
+										<hr/><h3>Plan de desarrollo</h3><hr/>
 										<div class="col-md-12"></div>
 									{% endif %}
 									{% if pregunta.grupo == '2' %}
-										<hr/><h3>Recursos</h3><hr/>
+										<hr/><h3>Información general</h3><hr/>
 										<div class="col-md-12"></div>
 									{% endif %}
 									{% if pregunta.grupo == '3' %}
+										<hr/><h3>Recursos</h3><hr/>
+										<div class="col-md-12"></div>
+									{% endif %}
+									{% if pregunta.grupo == '4' %}
 										<hr/><h3>Población atendida</h3><hr/>
 										<div class="col-md-12"></div>
 									{% endif %}
 								{% endif %}
-								{% if pregunta.grupo == '3' %}
+								{% if pregunta.grupo == '4' %}
 									<div class="form-group col-md-6" style="margin-right: 10px;">
 								{% else %}
 									<div class="form-group col-md-12" style="margin-right: 10px;">
 								{% endif %}
 									<label for="valor">{{ pregunta.enunciado }}</label>
 									<input type="hidden" id="respuesta_{{ politica.id }}_{{ pregunta.id }}" name="respuesta_id_{{ pregunta.id }}">
-									{% if pregunta.tipo_pregunta != 'textarea' %}
-										<input type="{{ pregunta.tipo_pregunta }}" id="valor_{{ politica.id }}_{{ pregunta.id }}" class="form-control input-sm" name="valor_{{ pregunta.id }}">
-									{% else %}
+									{% if pregunta.tipo_pregunta == 'textarea' %}
 										<textarea rows="4" id="valor_{{ politica.id }}_{{ pregunta.id }}" class="form-control input-sm" name="valor_{{ pregunta.id }}"></textarea>
+									{% else %}
+										{% if pregunta.tipo_pregunta == 'select' %}
+											{% if pregunta.enunciado == 'Eje estratégico' %}
+												<select id="valor_{{ politica.id }}_{{ pregunta.id }}" class="form-control input-sm" name="valor_{{ pregunta.id }}">
+													<option value="null">Ninguno</option>
+													{% for eje in ejes %}
+														<option value="{{ eje.id }}">{{ eje.codigo }} - {{ eje.nombre }}</option>	
+													{% endfor %}
+												</select>
+											{% endif %}
+											{% if pregunta.enunciado == 'Programa' %}
+												<select id="valor_{{ politica.id }}_{{ pregunta.id }}" class="form-control input-sm" name="valor_{{ pregunta.id }}">
+													<option value="null">Ninguno</option>
+													{% for programa in programas %}
+														<option value="{{ programa.id }}">{{ programa.codigo }} - {{ programa.nombre }}</option>	
+													{% endfor %}
+												</select>
+											{% endif %}
+											{% if pregunta.enunciado == 'Subprograma' %}
+												<select id="valor_{{ politica.id }}_{{ pregunta.id }}" class="form-control input-sm" name="valor_{{ pregunta.id }}">
+													<option value="null">Ninguno</option>
+													{% for subprograma in subprogramas %}
+														<option value="{{ subprograma.id }}">{{ subprograma.codigo }} - {{ subprograma.nombre }}</option>	
+													{% endfor %}
+												</select>
+											{% endif %}
+										{% else %}
+											<input type="{{ pregunta.tipo_pregunta }}" id="valor_{{ politica.id }}_{{ pregunta.id }}" class="form-control input-sm" name="valor_{{ pregunta.id }}">
+										{% endif %}
 									{% endif %}
 								</div>
 							{% endfor %}

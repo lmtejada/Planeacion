@@ -1,9 +1,10 @@
 from django.db import models
 
 GRUPOS = (
-    ('1', 'Información general'),
-    ('2', 'Recursos'),
-    ('3', 'Población atendida'),
+	('1', 'Plan de desarrollo'),
+    ('2', 'Información general'),
+    ('3', 'Recursos'),
+    ('4', 'Población atendida'),
 )
 
 TIPO_PREGUNTA = (
@@ -52,7 +53,7 @@ class PoliticaPublica(models.Model):
 	id = models.AutoField(primary_key=True)
 	nombre = models.CharField(max_length=200)
 	alias = models.CharField(max_length=30)
-	objetivo = models.TextField()
+	objetivo = models.TextField(null=True)
 
 	def __str__(self):
 		return '{}'.format(self.nombre)
@@ -60,7 +61,7 @@ class PoliticaPublica(models.Model):
 class EjeEstrategico(models.Model):
 	id = models.AutoField(primary_key=True)
 	nombre = models.CharField(max_length=200)
-	codigo = models.CharField(max_length=5)
+	codigo = models.CharField(max_length=10)
 
 	def __str__(self):
 		return '{}'.format(self.nombre)
@@ -68,7 +69,7 @@ class EjeEstrategico(models.Model):
 class Programa(models.Model):
 	id = models.AutoField(primary_key=True)
 	nombre = models.CharField(max_length=200)
-	codigo = models.CharField(max_length=5)
+	codigo = models.CharField(max_length=10)
 	eje_estrategico = models.ForeignKey(EjeEstrategico, on_delete=models.CASCADE)
 
 	def __str__(self):
@@ -77,17 +78,8 @@ class Programa(models.Model):
 class Subprograma(models.Model):
 	id = models.AutoField(primary_key=True)
 	nombre = models.CharField(max_length=200)
-	codigo = models.CharField(max_length=5)
-	programa = models.ForeignKey(Programa, on_delete=models.CASCADE)
-
-	def __str__(self):
-		return '{}'.format(self.nombre)
-
-class Proyecto(models.Model):
-	id = models.AutoField(primary_key=True)
-	nombre = models.CharField(max_length=200)
 	codigo = models.CharField(max_length=10)
-	subprograma = models.ForeignKey(Subprograma, on_delete=models.CASCADE)
+	programa = models.ForeignKey(Programa, on_delete=models.CASCADE)
 
 	def __str__(self):
 		return '{}'.format(self.nombre)
@@ -116,7 +108,6 @@ class FormularioRespuesta(models.Model):
 	estado = models.CharField(max_length=15, choices=ESTADO, null=True)
 	enviado = models.BooleanField(default=False)
 	activo = models.BooleanField(default=True)
-	observaciones = models.TextField(null=True)
 	entidad = models.ForeignKey(Entidad, on_delete=models.PROTECT)
 	vigencia = models.ForeignKey(Vigencia, on_delete=models.PROTECT)
 	politica_publica = models.ForeignKey(PoliticaPublica, on_delete=models.PROTECT, null=True)
@@ -138,7 +129,6 @@ class Nivel1(models.Model):
 	id = models.AutoField(primary_key=True)
 	texto = models.TextField()
 	nivel = models.CharField(max_length=2, choices=NIVELES1)
-	politica_publica = models.ForeignKey(PoliticaPublica, on_delete=models.CASCADE)
 
 	def __str__(self):
 		return '{}'.format(self.texto)
@@ -147,7 +137,6 @@ class Nivel2(models.Model):
 	id = models.AutoField(primary_key=True)
 	texto = models.TextField()
 	nivel = models.CharField(max_length=2, choices=NIVELES2)
-	politica_publica = models.ForeignKey(PoliticaPublica, on_delete=models.CASCADE)
 
 	def __str__(self):
 		return '{}'.format(self.texto)
@@ -156,7 +145,6 @@ class Nivel3(models.Model):
 	id = models.AutoField(primary_key=True)
 	texto = models.TextField()
 	nivel = models.CharField(max_length=2, choices=NIVELES3)
-	politica_publica = models.ForeignKey(PoliticaPublica, on_delete=models.CASCADE)
 
 	def __str__(self):
 		return '{}'.format(self.texto)
@@ -166,10 +154,11 @@ class Indicador(models.Model):
 	nombre = models.CharField(max_length=200)
 	politica_publica = models.ForeignKey(PoliticaPublica, on_delete=models.CASCADE) 
 	entidad = models.ManyToManyField(Entidad)
-	proyecto = models.ForeignKey(Proyecto, on_delete=models.CASCADE)
-	nivel1 = models.ForeignKey(Nivel1, on_delete=models.PROTECT)
-	nivel2 = models.ForeignKey(Nivel2, on_delete=models.PROTECT)
-	nivel3 = models.ForeignKey(Nivel3, on_delete=models.PROTECT)
+	accion = models.TextField(null=True)
+	meta = models.CharField(max_length=20, null=True)
+	nivel1 = models.ForeignKey(Nivel1, on_delete=models.PROTECT, null=True)
+	nivel2 = models.ForeignKey(Nivel2, on_delete=models.PROTECT, null=True)
+	nivel3 = models.ForeignKey(Nivel3, on_delete=models.PROTECT, null=True)
 
 	def __str__(self):
 		return '{}'.format(self.nombre)
@@ -183,3 +172,12 @@ class Respuesta(models.Model):
 
 	def __str__(self):
 		return '{}'.format(self.valor)
+
+class Observaciones(models.Model):
+	id = models.AutoField(primary_key=True)
+	observacion = models.TextField()
+	formulario_respuesta = models.ForeignKey(FormularioRespuesta, on_delete=models.PROTECT)
+	indicador = models.ForeignKey(Indicador, on_delete=models.PROTECT)
+
+	def __str__(self):
+		return '{}'.format(self.nombre)	

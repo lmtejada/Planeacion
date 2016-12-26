@@ -8,19 +8,21 @@ from apps.login.models import Persona
 
 @login_required()
 def listado_view(request):
-
+	title = "Listado de formularios"
 	if request.user.groups.filter(name='Administrador').count() == 1:
 		extends = 'base/admin_nav.html'
 		formulariorespuestas = FormularioRespuesta.objects.filter(enviado=True)
 		return render(request, "consultas/form_list_admin.html", {"extends": extends,
-																"formulariorespuestas": formulariorespuestas})
+																  "title": title,
+																  "formulariorespuestas": formulariorespuestas})
 	elif request.user.groups.filter(name='Operador').count() == 1:
 		extends = 'base/user_nav.html'
 		usuario = request.user
 		persona = Persona.objects.filter(user=usuario).select_related('entidad').first()
 		formulariorespuestas = FormularioRespuesta.objects.filter(entidad=persona.entidad).filter(enviado=True)
 		return render(request, "consultas/form_list_user.html", {"extends": extends,
-																"formulariorespuestas": formulariorespuestas})
+																 "title": title,
+																 "formulariorespuestas": formulariorespuestas})
 
 	return redirect('cuenta:home')
 

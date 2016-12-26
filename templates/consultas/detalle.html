@@ -94,31 +94,23 @@
 								{% endfor %}
 							</select>
 						</div>
-						<div class="form-group col-md-12">
-							<label for="accion">Acción</label>
-							<input type="text" id="accion_{{ politica.id }}" class="form-control input-sm" name="accion">
-						</div>
-						<div class="form-group col-md-12">
-							<label for="ubicacion">Ubicación</label>
-							<input type="text" id="ubicacion_{{ politica.id }}" class="form-control input-sm" name="ubicacion">
-						</div>
-						<div class="form-group col-md-12">
-							<label for="soporte">Soporte</label>
-							<input type="text" id="soporte_{{ politica.id }}" class="form-control input-sm" name="soporte">
-						</div>
 						{% for pregunta in preguntas %}
 							{% if forloop.counter0 != 0%}
 								{% with preguntas|prev:forloop.counter0 as prev %}
 									{% if pregunta.grupo != prev.grupo %}
 										{% if pregunta.grupo == '1' %}
-											<hr/><h3>Información general</h3><hr/>
+											<hr/><h3>Plan de desarrollo</h3><hr/>
 											<div class="col-md-12"></div>
 										{% endif %}
 										{% if pregunta.grupo == '2' %}
-											<hr/><h3>Recursos</h3><hr/>
+											<hr/><h3>Información general</h3><hr/>
 											<div class="col-md-12"></div>
 										{% endif %}
 										{% if pregunta.grupo == '3' %}
+											<hr/><h3>Recursos</h3><hr/>
+											<div class="col-md-12"></div>
+										{% endif %}
+										{% if pregunta.grupo == '4' %}
 											<hr/><h3>Población atendida</h3><hr/>
 											<div class="col-md-12"></div>
 										{% endif %}
@@ -126,14 +118,18 @@
 								{% endwith %}
 							{% else %}
 								{% if pregunta.grupo == '1' %}
-									<hr/><h3>Información general</h3><hr/>
+									<hr/><h3>Plan de desarrollo</h3><hr/>
 									<div class="col-md-12"></div>
 								{% endif %}
 								{% if pregunta.grupo == '2' %}
-									<hr/><h3>Recursos</h3><hr/>
+									<hr/><h3>Información general</h3><hr/>
 									<div class="col-md-12"></div>
 								{% endif %}
 								{% if pregunta.grupo == '3' %}
+									<hr/><h3>Recursos</h3><hr/>
+									<div class="col-md-12"></div>
+								{% endif %}
+								{% if pregunta.grupo == '4' %}
 									<hr/><h3>Población atendida</h3><hr/>
 									<div class="col-md-12"></div>
 								{% endif %}
