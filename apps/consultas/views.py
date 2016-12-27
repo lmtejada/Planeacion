@@ -55,9 +55,12 @@ def detalle_view(request, pk):
 
 		if request.method == 'POST':
 			if 'estado' in request.POST:
-				form.estado = request.POST['estado']
 				if request.POST['estado'] == 'no_aprobado':
 					form.activo = True
+				elif request.POST['estado'] == 'aprobado':
+					obsForm = Observacion.objects.filter(formulario_respuesta=form)
+					obsForm.delete()
+				form.estado = request.POST['estado']
 				form.save()
 				messages.add_message(request, messages.SUCCESS, 'El formulario ha sido evaluado correctamente.')
 			else: 

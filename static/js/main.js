@@ -104,7 +104,7 @@ $('.indicador_respuesta').on('change', function(event){
     if(value != 'null'){
         $('#errors_'+id).html('');
         $('#errors_'+id).hide();
-        cargarDataRespuesta(value, id);
+        cargarDataRespuesta(value, id, $(this).attr('rel'));
     } else {
         var form = "formulario_"+id;
         $(':input:not([name=indicador])', '#'+form).each(function() {
@@ -182,14 +182,14 @@ function cargarData(indicador_id, formulario_id) {
     });
 };
 
-function cargarDataRespuesta(indicador_id, formulario_id) { 
+function cargarDataRespuesta(indicador_id, politica_id, formulario_id) { 
     $.ajax({
         url : "/consultas/get_data/", 
         type : "POST", 
         data : {indicador : indicador_id, formulario : formulario_id},
 
         success : function(json) {
-            llenarFormulario(json, formulario_id); 
+            llenarFormulario(json, politica_id); 
         },
 
         error : function(xhr,errmsg,err) {
