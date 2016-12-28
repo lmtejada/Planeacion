@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
 from django.db.models import prefetch_related_objects
-from apps.seguimiento.models import FormularioRespuesta, Indicador, Respuesta, Observacion
+from apps.seguimiento.models import FormularioRespuesta, Indicador, Respuesta, Observacion, EjeEstrategico, Subprograma, Programa
 from apps.login.models import Persona
 
 @login_required()
@@ -35,6 +35,10 @@ def detalle_view(request, pk):
 		extends = 'base/admin_nav.html'
 	elif request.user.groups.filter(name='Operador').count() == 1:
 		extends = 'base/user_nav.html'
+
+	ejes = EjeEstrategico.objects.all()
+	programas = Programa.objects.all()
+	subprogramas = Subprograma.objects.all()
 
 	form = FormularioRespuesta.objects.filter(id=int(pk)).prefetch_related('respuesta_set').first()
 
@@ -82,7 +86,10 @@ def detalle_view(request, pk):
 															  "politicas": politicas,
 															  "indicadores": indicadores,
 															  "preguntas": preguntas,
-															  "rol": request.user.groups.filter(name='Administrador').count()})
+															  "rol": request.user.groups.filter(name='Administrador').count(),
+															  "ejes": ejes,
+															  "programas": programas,
+															  "subprogramas": subprogramas})
 		
 		return render(request, "consultas/detalle.html", {"extends": extends,
 														  "title": title,
@@ -90,7 +97,10 @@ def detalle_view(request, pk):
 														  "politicas": politicas,
 														  "indicadores": indicadores,
 														  "preguntas": preguntas,
-														  "rol": request.user.groups.filter(name='Administrador').count()})
+														  "rol": request.user.groups.filter(name='Administrador').count(),
+														  "ejes": ejes,
+														  "programas": programas,
+														  "subprogramas": subprogramas})
 	else:
 		return render(request, "consultas/detalle.html", {"extends": extends,
 														"form": 0})

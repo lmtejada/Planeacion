@@ -91,7 +91,7 @@
 						{% csrf_token %}
 						<div class="form-group col-md-12">
 							<label for="indicador">Indicador</label>
-							<select id="indicador_{{ politica.id }}" name="indicador" class="form-control input-sm indicador_respuesta" rel="{{ form.id }}">
+							<select id="indicador_{{ politica.id }}" name="indicador" class="form-control input-sm indicador_respuesta chosen" rel="{{ form.id }}">
 								<option value="null">Ninguno</option>
 								{% for indicador in indicadores %}
 									{% if indicador.politica_publica == politica %}
@@ -145,10 +145,37 @@
 								<div class="form-group col-md-12" style="margin-right: 10px;">
 							{% endif %}
 								<label for="valor">{{ pregunta.enunciado }}</label>
-								{% if pregunta.tipo_pregunta != 'textarea' %}
-									<input type="{{ pregunta.tipo_pregunta }}" id="valor_{{ politica.id }}_{{ pregunta.id }}" class="form-control input-sm" name="valor_{{ pregunta.id }}">
-								{% else %}
+								{% if pregunta.tipo_pregunta == 'textarea' %}
 									<textarea rows="4" id="valor_{{ politica.id }}_{{ pregunta.id }}" class="form-control input-sm" name="valor_{{ pregunta.id }}"></textarea>
+								{% else %}
+									{% if pregunta.tipo_pregunta == 'select' %}
+										{% if pregunta.enunciado == 'Eje estratégico' %}
+											<select id="valor_{{ politica.id }}_{{ pregunta.id }}" class="form-control input-sm chosen" name="valor_{{ pregunta.id }}">
+												<option value="null">Ninguno</option>
+												{% for eje in ejes %}
+													<option value="{{ eje.id }}">{{ eje.codigo }} - {{ eje.nombre }}</option>	
+												{% endfor %}
+											</select>
+										{% endif %}
+										{% if pregunta.enunciado == 'Programa' %}
+											<select id="valor_{{ politica.id }}_{{ pregunta.id }}" class="form-control input-sm chosen" name="valor_{{ pregunta.id }}">
+												<option value="null">Ninguno</option>
+												{% for programa in programas %}
+													<option value="{{ programa.id }}">{{ programa.codigo }} - {{ programa.nombre }}</option>	
+												{% endfor %}
+											</select>
+										{% endif %}
+										{% if pregunta.enunciado == 'Subprograma' %}
+											<select id="valor_{{ politica.id }}_{{ pregunta.id }}" class="form-control input-sm chosen" name="valor_{{ pregunta.id }}">
+												<option value="null">Ninguno</option>
+												{% for subprograma in subprogramas %}
+													<option value="{{ subprograma.id }}">{{ subprograma.codigo }} - {{ subprograma.nombre }}</option>	
+												{% endfor %}
+											</select>
+										{% endif %}
+									{% else %}
+										<input type="{{ pregunta.tipo_pregunta }}" id="valor_{{ politica.id }}_{{ pregunta.id }}" class="form-control input-sm" name="valor_{{ pregunta.id }}">
+									{% endif %}
 								{% endif %}
 							</div>
 						{% endfor %}

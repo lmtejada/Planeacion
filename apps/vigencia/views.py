@@ -22,20 +22,20 @@ def asignar_view(request):
 		fecha_inicio = datetime.strptime(inicio, '%Y-%m-%d')
 		fecha_fin = datetime.strptime(fin, '%Y-%m-%d')
 
-		if fecha_inicio == fecha_fin:
+		if fecha_inicio.date() == fecha_fin.date():
 			messages.add_message(request, messages.ERROR, 'Las fechas de inicio y de fin no deben ser iguales')
 			return render(request, "vigencia/asignar.html", {"vigenciaform": vigenciaform, 
 													"title": title,
 													"formularios": formularios})
 
-		if fecha_fin < fecha_inicio:
+		if fecha_fin.date() < fecha_inicio.date():
 			messages.add_message(request, messages.ERROR, 'La fecha de fin no debe ser anterior a la fecha de inicio')
 			return render(request, "vigencia/asignar.html", {"vigenciaform": vigenciaform, 
 													"title": title,
 													"formularios": formularios})
 
-		if fecha_inicio < fecha_actual or fecha_fin < fecha_actual:
-			messages.add_message(request, messages.ERROR, 'Las fechas no deben ser anterioes a la fecha actual')
+		if fecha_inicio.date() < fecha_actual.date() or fecha_fin.date() < fecha_actual.date():
+			messages.add_message(request, messages.ERROR, 'Las fechas no deben ser anteriores a la fecha actual')
 			return render(request, "vigencia/asignar.html", {"vigenciaform": vigenciaform, 
 													"title": title,
 													"formularios": formularios})
@@ -48,7 +48,10 @@ def asignar_view(request):
 		vigencia = vigenciaform.save(commit=False)
 		vigencia.periodo = anio + "-" + semestre
 		vigencia.save()
-		return redirect('cuenta:home')
+		messages.add_message(request, messages.SUCCESS, 'Vigencia asignada exitosamente')
+		return render(request, "vigencia/asignar.html", {"vigenciaform": vigenciaform, 
+													"title": title,
+													"formularios": formularios})
 
 	return render(request, "vigencia/asignar.html", {"vigenciaform": vigenciaform, 
 													"title": title,

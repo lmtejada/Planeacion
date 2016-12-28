@@ -101,22 +101,26 @@ def form_view(request):
 				politicas = ''
 				indicadores = ''
 				preguntas = ''
+				observaciones = ''
 		else:
 			politicas = 0
 			indicadores = 0
 			preguntas = 0
 			indicadores_politica = 0
+			observaciones = 0
 	else:
 		politicas = 0
 		indicadores = 0
 		preguntas = 0 
 		indicadores_politica = 0
+		observaciones = 0
 
 		if persona is None:
 			politicas = ''
 			indicadores = ''
 			preguntas = ''
 			indicadores_politica = ''
+			observaciones = ''
 
 	if request.method == 'POST':
 		if 'enviado' in request.POST:

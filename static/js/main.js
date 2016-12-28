@@ -1,3 +1,7 @@
+$(document).ready(function(){
+    $(".chosen").chosen();
+});
+
 $(document).click(function() {
     //$(".messages").remove();
 });
@@ -30,13 +34,30 @@ $('.guardar').on('click', function(event){
         enviar = false;
         $('#errors_'+politica_id).html("<p>Por favor seleccione un indicador.</p>"); 
         $('#errors_'+politica_id).show();
+        window.scrollTo(0,0);
     } else {
         $(':input:not([type=button])', '#'+id).each(function() {
             if(!$(this).is(':hidden')){
-                if(this.value == '' || this.value == 'null'){
+
+                console.log(this);
+                console.log(this.value);
+
+                if(typeof $(this).attr('name') != 'undefined'){
+                    if(this.value == ''){
+                        enviar = false;
+                        $('#errors_'+politica_id).html("<p>Para guardar el formulario debe diligenciar todos los campos.</p>"); 
+                        $('#errors_'+politica_id).show();
+                        window.scrollTo(0,0);
+                        return;
+                    }
+                }
+            } 
+            else if ($(this).hasClass( "chosen" )){   
+                if(this.value == 'null'){
                     enviar = false;
                     $('#errors_'+politica_id).html("<p>Para guardar el formulario debe diligenciar todos los campos.</p>"); 
                     $('#errors_'+politica_id).show();
+                    window.scrollTo(0,0);
                     return;
                 }
             }
@@ -91,6 +112,9 @@ $('.indicadores').on('change', function(event){
                 $(this).val('null');
 		});
     }
+
+    $(".chosen").trigger("chosen:updated");
+
 });
 
 $('.indicador_respuesta').on('change', function(event){ 
@@ -118,6 +142,9 @@ $('.indicador_respuesta').on('change', function(event){
         });
         $("#observaciones").val('');
     }
+
+    $(".chosen").trigger("chosen:updated");
+    
 });
 
 $('#calificacion').on('change', function(event){
@@ -256,6 +283,8 @@ function llenarFormulario(json, politica_id){
             $(this).prop('disabled', true); 
         });
     }
+
+    $(".chosen").trigger("chosen:updated");
 };
 
 function getCookie(name) {
