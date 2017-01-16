@@ -36,14 +36,25 @@ $('.guardar').on('click', function(event){
         $('#errors_'+politica_id).show();
         window.scrollTo(0,0);
     } else {
-        $(':input:not([type=button])', '#'+id).each(function() {
-            if(!$(this).is(':hidden')){
-
-                console.log(this);
-                console.log(this.value);
-
-                if(typeof $(this).attr('name') != 'undefined'){
-                    if(this.value == ''){
+        if($("#subprograma_"+politica_id).val() == "null"){
+            enviar = false;
+            $('#errors_'+politica_id).html("<p>Por favor seleccione un subprograma.</p>"); 
+            $('#errors_'+politica_id).show();
+            window.scrollTo(0,0);
+        } else {
+            $(':input:not([type=button])', '#'+id).each(function() {
+                if(!$(this).is(':hidden')){
+                    if(typeof $(this).attr('name') != 'undefined'){
+                        if(this.value == ''){
+                            enviar = false;
+                            $('#errors_'+politica_id).html("<p>Para guardar el formulario debe diligenciar todos los campos.</p>"); 
+                            $('#errors_'+politica_id).show();
+                            window.scrollTo(0,0);
+                            return;
+                        }
+                    }
+                } else if ($(this).hasClass( "chosen" )){   
+                    if(this.value == 'null'){
                         enviar = false;
                         $('#errors_'+politica_id).html("<p>Para guardar el formulario debe diligenciar todos los campos.</p>"); 
                         $('#errors_'+politica_id).show();
@@ -51,17 +62,8 @@ $('.guardar').on('click', function(event){
                         return;
                     }
                 }
-            } 
-            else if ($(this).hasClass( "chosen" )){   
-                if(this.value == 'null'){
-                    enviar = false;
-                    $('#errors_'+politica_id).html("<p>Para guardar el formulario debe diligenciar todos los campos.</p>"); 
-                    $('#errors_'+politica_id).show();
-                    window.scrollTo(0,0);
-                    return;
-                }
-            }
-        });
+            });
+        }
     } 
 
     if(enviar){
@@ -147,6 +149,10 @@ $('.indicador_respuesta').on('change', function(event){
     
 });
 
+$('.subprograma').on('change', function(event){ 
+    $(".chosen").trigger("chosen:updated");
+});
+
 $('#calificacion').on('change', function(event){
     $("#mensajes").html(''); 
 });
@@ -230,7 +236,7 @@ function llenarFormulario(json, politica_id){
 	var obj = JSON.parse(json);
     var id = "formulario_"+politica_id;
     console.log(obj);
-    $("#data_"+politica_id).html("<h3>Información de la política</h3><hr/>"+
+    $("#data_"+politica_id).html("<hr/><h3>Información de la política</h3><hr/>"+
                                  "<div class='row'><div class='col-md-12'><label>"+obj['data']['nivel1'].nombre+"</label><p>"+obj['data']['nivel1'].valor+"</p></div></div>"+
                                  "<div class='row'><div class='col-md-12'><label>"+obj['data']['nivel2'].nombre+"</label><p>"+obj['data']['nivel2'].valor+"</p></div></div>"+
                                  "<div class='row'><div class='col-md-12'><label>"+obj['data']['nivel3'].nombre+"</label><p>"+obj['data']['nivel3'].valor+"</p></div></div>"+
@@ -248,9 +254,13 @@ function llenarFormulario(json, politica_id){
             $(this).val('null');
         });
     } else {
-        for(var key in respuestas) {
-            $("#respuesta_"+politica_id+"_"+respuestas[key].pregunta_id).val(respuestas[key].respuesta_id);
-            $("#valor_"+politica_id+"_"+respuestas[key].pregunta_id).val(respuestas[key].valor);
+        for(var key in respuestas){
+            if(key != 'subprograma'){
+                $("#respuesta_"+politica_id+"_"+respuestas[key].pregunta_id).val(respuestas[key].respuesta_id);
+                $("#valor_"+politica_id+"_"+respuestas[key].pregunta_id).val(respuestas[key].valor);
+            } else {
+                $("#subprograma_"+politica_id).val(respuestas[key]);
+            }
         }
     }
 

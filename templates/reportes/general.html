@@ -24,7 +24,7 @@
    				<div class="tab-pane fade" id="{{ politica.id }}">
     		{% endif %}
    			<br/>
-			<table id="tabla_{{ politica.id }}" class="table table-striped table-hover dt-responsive nowrap grid">
+			<table id="tabla_{{ politica.id }}" class="table table-striped table-hover dt-responsive grid">
 				<thead>
 					<tr>
 						<th>Nivel 1</th>
@@ -107,9 +107,12 @@
 $(document).ready(function () {
 
 	$( "table.grid" ).each(function() {
-		$( this ).DataTable(
+		$( this ).DataTable({
 
-		{
+			dom: 'Bfrtip',
+        	buttons: [
+            'csv', 'excel'
+        	],
 
 			"language": {
 
@@ -120,32 +123,12 @@ $(document).ready(function () {
 
 			"drawCallback": function () {
 				$('.dataTables_paginate > .pagination').addClass('pagination-sm');
+				$('.buttons-html5').addClass('btn-sm');				
 			}
 
-		}
-
-		);
+		});
 
 	});
-
-	/*$('.grid').DataTable(
-
-	{
-
-		"language": {
-
-			"url" : "//cdn.datatables.net/plug-ins/1.10.13/i18n/Spanish.json"
-
-		},
-
-
-		"drawCallback": function () {
-			$('.dataTables_paginate > .pagination').addClass('pagination-sm');
-		}
-
-	}
-
-	);*/
 });
 </script> 
 {% endblock %}

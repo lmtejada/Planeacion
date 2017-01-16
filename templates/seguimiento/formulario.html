@@ -137,7 +137,7 @@
 								</select>
 							</div>
 							{% for pregunta in preguntas %}
-								{% if forloop.counter0 != 0%}
+								{% if forloop.counter0 != 0 %}
 									{% with preguntas|prev:forloop.counter0 as prev %}
 										{% if pregunta.grupo != prev.grupo %}
 											{% if pregunta.grupo == '1' %}
@@ -162,6 +162,15 @@
 									{% if pregunta.grupo == '1' %}
 										<hr/><h3>Plan de desarrollo</h3><hr/>
 										<div class="col-md-12"></div>
+										<div class="form-group col-md-12">
+											<label for="subprograma">Subprograma</label>
+											<select id="subprograma_{{ politica.id }}" name="subprograma" class="form-control input-sm subprograma chosen">
+												<option value="null">Ninguno</option>
+												{% for subprograma in subprogramas %}
+													<option value="{{ subprograma.id }}">{{ subprograma.codigo }} - {{ subprograma.nombre }}</option>	
+												{% endfor %}
+											</select>
+										</div>
 									{% endif %}
 									{% if pregunta.grupo == '2' %}
 										<hr/><h3>Información general</h3><hr/>
@@ -176,45 +185,57 @@
 										<div class="col-md-12"></div>
 									{% endif %}
 								{% endif %}
+								{% if pregunta.subgrupo is not None and forloop.counter0 != 0 %}
+									{% with preguntas|prev:forloop.counter0 as prev %}
+										{% if prev.grupo is not None %}
+											{% if pregunta.subgrupo != prev.subgrupo %}
+												{% if pregunta.subgrupo == '1' %}
+													<h4 class="col-md-12">Género</h4>
+												{% endif %}
+												{% if pregunta.subgrupo == '2' %}
+													<h4 class="col-md-12">Zona</h4>
+												{% endif %}
+												{% if pregunta.subgrupo == '3' %}
+													<h4 class="col-md-12">Ciclos de edad</h4>
+												{% endif %}
+												{% if pregunta.subgrupo == '4' %}
+													<h4 class="col-md-12">Condición</h4>
+												{% endif %}
+												{% if pregunta.subgrupo == '5' %}
+													<h4 class="col-md-12">Etnia</h4>
+												{% endif %}
+											{% endif %}
+										{% else %}
+											{% if pregunta.subgrupo == '1' %}
+												<h4 class="col-md-12">Género</h4>
+											{% endif %}
+											{% if pregunta.subgrupo == '2' %}
+												<h4 class="col-md-12">Zona</h4>
+											{% endif %}
+											{% if pregunta.subgrupo == '3' %}
+												<h4 class="col-md-12">Ciclos de edad</h4>
+											{% endif %}
+											{% if pregunta.subgrupo == '4' %}
+												<h4 class="col-md-12">Condición</h4>
+											{% endif %}
+											{% if pregunta.subgrupo == '5' %}
+												<h4 class="col-md-12">Etnia</h4>
+											{% endif %}
+										{% endif %}
+									{% endwith %}
+								{% endif %}
 								{% if pregunta.grupo == '4' %}
 									<div class="form-group col-md-6" style="margin-right: 10px;">
 								{% else %}
 									<div class="form-group col-md-12" style="margin-right: 10px;">
 								{% endif %}
-									<label for="valor">{{ pregunta.enunciado }}</label>
-									<input type="hidden" id="respuesta_{{ politica.id }}_{{ pregunta.id }}" name="respuesta_id_{{ pregunta.id }}">
-									{% if pregunta.tipo_pregunta == 'textarea' %}
-										<textarea rows="4" id="valor_{{ politica.id }}_{{ pregunta.id }}" class="form-control input-sm" name="valor_{{ pregunta.id }}"></textarea>
-									{% else %}
-										{% if pregunta.tipo_pregunta == 'select' %}
-											{% if pregunta.enunciado == 'Eje estratégico' %}
-												<select id="valor_{{ politica.id }}_{{ pregunta.id }}" class="form-control input-sm chosen" name="valor_{{ pregunta.id }}">
-													<option value="null">Ninguno</option>
-													{% for eje in ejes %}
-														<option value="{{ eje.id }}">{{ eje.codigo }} - {{ eje.nombre }}</option>	
-													{% endfor %}
-												</select>
-											{% endif %}
-											{% if pregunta.enunciado == 'Programa' %}
-												<select id="valor_{{ politica.id }}_{{ pregunta.id }}" class="form-control input-sm chosen" name="valor_{{ pregunta.id }}">
-													<option value="null">Ninguno</option>
-													{% for programa in programas %}
-														<option value="{{ programa.id }}">{{ programa.codigo }} - {{ programa.nombre }}</option>	
-													{% endfor %}
-												</select>
-											{% endif %}
-											{% if pregunta.enunciado == 'Subprograma' %}
-												<select id="valor_{{ politica.id }}_{{ pregunta.id }}" class="form-control input-sm chosen" name="valor_{{ pregunta.id }}">
-													<option value="null">Ninguno</option>
-													{% for subprograma in subprogramas %}
-														<option value="{{ subprograma.id }}">{{ subprograma.codigo }} - {{ subprograma.nombre }}</option>	
-													{% endfor %}
-												</select>
-											{% endif %}
-										{% else %}
-											<input type="{{ pregunta.tipo_pregunta }}" id="valor_{{ politica.id }}_{{ pregunta.id }}" class="form-control input-sm" name="valor_{{ pregunta.id }}">
-										{% endif %}
-									{% endif %}
+								<label for="valor">{{ pregunta.enunciado }}</label>
+								<input type="hidden" id="respuesta_{{ politica.id }}_{{ pregunta.id }}" name="respuesta_id_{{ pregunta.id }}">
+								{% if pregunta.tipo_pregunta == 'textarea' %}
+									<textarea rows="4" id="valor_{{ politica.id }}_{{ pregunta.id }}" class="form-control input-sm" name="valor_{{ pregunta.id }}"></textarea>
+								{% else %}
+									<input type="{{ pregunta.tipo_pregunta }}" id="valor_{{ politica.id }}_{{ pregunta.id }}" class="form-control input-sm" name="valor_{{ pregunta.id }}">
+								{% endif %}
 								</div>
 							{% endfor %}
 							<div class="form-group text-center col-md-12">

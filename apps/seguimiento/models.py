@@ -7,10 +7,17 @@ GRUPOS = (
     ('4', 'Población atendida'),
 )
 
+SUBGRUPOS = (
+	('1', 'Género'),
+    ('2', 'Zona'),
+    ('3', 'Ciclos de edad'),
+    ('4', 'Condición'),
+    ('5', 'Etnia'),
+)
+
 TIPO_PREGUNTA = (
     ('text', 'Texto'),
     ('number', 'Numérico'),
-    ('select', 'Selector'),
     ('textarea', 'Cuadro de texto'),
 )
 
@@ -119,6 +126,7 @@ class Pregunta(models.Model):
 	id = models.AutoField(primary_key=True)
 	enunciado = models.TextField()
 	grupo = models.CharField(max_length=2, choices=GRUPOS)
+	subgrupo = models.CharField(max_length=2, choices=SUBGRUPOS, null=True)
 	tipo_pregunta = models.CharField(max_length=10, choices=TIPO_PREGUNTA)
 	formulario = models.ForeignKey(Formulario, on_delete=models.PROTECT)
 
@@ -153,7 +161,7 @@ class Indicador(models.Model):
 	id = models.AutoField(primary_key=True)
 	nombre = models.CharField(max_length=200)
 	politica_publica = models.ForeignKey(PoliticaPublica, on_delete=models.CASCADE) 
-	entidad = models.ManyToManyField(Entidad)
+	entidad = models.ManyToManyField(Entidad, through='IndicadorEntidad')
 	accion = models.TextField(null=True)
 	meta = models.CharField(max_length=20, null=True)
 	nivel1 = models.ForeignKey(Nivel1, on_delete=models.PROTECT, null=True)
@@ -181,3 +189,13 @@ class Observacion(models.Model):
 
 	def __str__(self):
 		return '{}'.format(self.observacion)	
+
+
+class IndicadorEntidad(models.Model):
+	id = models.AutoField(primary_key=True)
+	indicador = models.ForeignKey(Indicador, on_delete=models.PROTECT)
+	entidad = models.ForeignKey(Entidad, on_delete=models.PROTECT)
+	subprograma = models.ForeignKey(Subprograma, on_delete=models.PROTECT, null=True)
+
+	def __str__(self):
+		return '{} - {}'.format(self.entidad, self.indicador)

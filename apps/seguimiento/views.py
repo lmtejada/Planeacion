@@ -19,7 +19,8 @@ from apps.seguimiento.models import (Entidad,
 									 Nivel1,
 									 Nivel2,
 									 Nivel3,
-									 Observacion)
+									 Observacion,
+									 IndicadorEntidad)
 
 def inicio(request):
 	politicas = PoliticaPublica.objects.all()
@@ -79,23 +80,6 @@ def form_view(request):
 						if indicador.politica_publica.id not in observaciones:
 							observaciones[indicador.politica_publica.id] = {}
 						observaciones[indicador.politica_publica.id][obs.id] = obs
-
-
-						'''tmp = PoliticaPublica.objects.filter(id=indicador.politica_publica.id).annotate(num_indicadores=Count('indicador')).first()
-						tmp2 = FormularioRespuesta.objects.filter(id=forms[indicador.politica_publica.id].id).prefetch_related('respuesta_set').values('respuesta__indicador').distinct().annotate(num_enviados=Count('respuesta__indicador')).first()
-						indicadores_politica[indicador.politica_publica.id] = {}
-						indicadores_politica[indicador.politica_publica.id]['objeto'] = tmp
-						indicadores_politica[indicador.politica_publica.id]['num_enviados'] = 0
-						indicadores_politica[indicador.politica_publica.id]['estado'] = 'Incompleto'''
-				
-				'''tmp = Respuesta.objects.filter(formulario_respuesta=form).select_related('indicador').values('indicador').distinct()
-				for i in tmp:
-					politicaTmp = PoliticaPublica.objects.filter(indicador__id=i['indicador']).first() 
-					indicadores_politica[politicaTmp.id]['num_enviados'] += 1
-					if indicadores_politica[politicaTmp.id]['num_enviados'] == indicadores_politica[politicaTmp.id]['objeto'].num_indicadores:
-						indicadores_politica[politicaTmp.id]['estado'] = 'Completo'
-					else:
-						indicadores_politica[politicaTmp.id]['estado'] = 'Incompleto'''
 			else:
 				indicadores_politica = ''
 				politicas = ''
@@ -242,6 +226,11 @@ def form_view(request):
 															   			   "observaciones": observaciones})
 				
 				for i in respuestas:
+					if i == 'subprograma':
+						relacion = IndicadorEntidad.objects.filter(entidad=persona.entidad, indicador=indicador)
+						valor = request.POST[i]
+						subprograma = Subprograma.objects.filter(id=valor).first()
+						relacion.update(subprograma=subprograma)
 					if i.startswith('valor_'):
 						valor = request.POST[i]
 						if valor != '':
@@ -328,10 +317,19 @@ def get_data_view(request):
 		formulario = FormularioRespuesta.objects.filter(entidad=persona.entidad).filter(vigencia=vigencia).filter(politica_publica__id=politica).first()
 		respuestas = Respuesta.objects.filter(formulario_respuesta=formulario).filter(indicador__id=indicador)
 	
+		'''subprograma = Subprograma.objects.filter(id=indicadorInfo.subprograma.id).select_related('programa').first()
+		programa = Programa.objects.filter(id=subprograma.programa.id).select_related('eje_estrategico').first()'''
+
+		response_data['data'] = {}
+		'''response_data['data']['subprograma'] = subprograma.codigo+' - '+subprograma.nombre
+		response_data['data']['programa'] = programa.codigo+' - '+programa.nombre
+		response_data['data']['eje_estrategico'] = programa.eje_estrategico.codigo+' - '+programa.eje_estrategico.nombre'''
+
 		indicadorInfo1 = Indicador.objects.filter(id=indicador).select_related('nivel1').first()
 		indicadorInfo2 = Indicador.objects.filter(id=indicador).select_related('nivel2').first()
 		indicadorInfo3 = Indicador.objects.filter(id=indicador).select_related('nivel3').first()
-		
+		relacion = IndicadorEntidad.objects.filter(entidad=persona.entidad, indicador=indicadorInfo1).select_related('subprograma').first()
+
 		niveles1 = {
 	        '1':'Línea orientadora',
 			'2':'Línea estratégica',
@@ -354,7 +352,6 @@ def get_data_view(request):
 		    '3': 'Estrategia',
 		}
 
-		response_data['data'] = {}
 		response_data['data']['nivel1'] = {}
 
 		if indicadorInfo1.nivel1 is not None:
@@ -397,6 +394,8 @@ def get_data_view(request):
 			response_data['estado'] = formulario.estado
 			response_data['activo'] = formulario.activo
 			response_data['respuestas'] = {}
+			if relacion.subprograma is not None:
+				response_data['respuestas']['subprograma'] = relacion.subprograma.id
 			for i in respuestas:
 				temp = {}
 				temp['pregunta_id'] = i.pregunta.id

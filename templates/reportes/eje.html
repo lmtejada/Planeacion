@@ -1,0 +1,88 @@
+{% extends extends %}
+{% load extra_filters %}
+{% block title %}
+{{ title }}
+{% endblock %}
+
+{% block content %}
+<div class="container well">
+
+	<ul class="nav nav-tabs">
+		{% for politica in politicas %}
+			{% if forloop.first %}
+				<li class="active"><a data-toggle="tab" href="#{{ politica.id }}">{{ politica.alias }}</a></li>	
+   			{% else %}
+   				<li><a data-toggle="tab" href="#{{ politica.id }}">{{ politica.alias }}</a></li>
+    		{% endif %}	
+		{% endfor %}	
+	</ul>
+	<div class="tab-content ">
+		{% for politica in politicas %}
+			{% if forloop.first %}
+				<div class="tab-pane fade in active" id="{{ politica.id }}">	
+   			{% else %}
+   				<div class="tab-pane fade" id="{{ politica.id }}">
+    		{% endif %}
+   			<br/>
+			<table id="tabla_{{ politica.id }}" class="table table-striped table-hover dt-responsive nowrap grid">
+				<thead>
+					<tr>
+						<th>Eje estratégico</th>
+						{% for header in headers %}
+							<th>{{ header.enunciado }}</th>
+						{% endfor %}
+					</tr>
+				</thead>
+				<tbody>
+					{% for eje in ejes %}
+					{% if respuestas|return_item:politica.id|return_item:eje.id is not None %}
+						<tr><td> {{ eje.nombre }} </td> 
+						{% for key, value in respuestas.items %}
+							{% if key == politica.id %}
+								{% for i, j in value.items %}
+									{% if i == eje.id %}
+										{% for l, m in j.items %}
+											<td> {{ m }} </td>
+										{% endfor %}
+									{% endif %}
+								{% endfor %}
+							{% endif %}
+						{% endfor %}
+						</tr>
+					{% endif %}
+				{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	{% endfor %} 
+</div>
+
+
+
+<script>
+$(document).ready(function () {
+
+	$( "table.grid" ).each(function() {
+		$( this ).DataTable(
+
+		{
+
+			"language": {
+
+				"url" : "//cdn.datatables.net/plug-ins/1.10.13/i18n/Spanish.json"
+
+			},
+
+
+			"drawCallback": function () {
+				$('.dataTables_paginate > .pagination').addClass('pagination-sm');
+			}
+
+		}
+
+		);
+
+	});
+});
+</script> 
+{% endblock %}
