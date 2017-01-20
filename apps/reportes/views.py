@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import prefetch_related_objects, Sum
 from django.db import connection
-from apps.seguimiento.models import FormularioRespuesta, Indicador, Respuesta, Pregunta, PoliticaPublica, Vigencia, EjeEstrategico, Programa, Subprograma, Nivel1, Nivel2, Nivel3
+from apps.seguimiento.models import IndicadorEntidad, FormularioRespuesta, Indicador, Respuesta, Pregunta, PoliticaPublica, Vigencia, EjeEstrategico, Programa, Subprograma, Nivel1, Nivel2, Nivel3
 from apps.login.models import Persona
 
 @login_required()
@@ -260,13 +260,13 @@ def reporte_eje_view(request):
 			tmp = formulario.respuesta_set.all()
 			prefetch_related_objects(tmp, 'indicador')
 			for item in tmp:
-				if item.indicador.subprograma is not None:
-					subprograma = Subprograma.objects.filter(id=item.indicador.subprograma.id).select_related('programa').first()
-					if subprograma.programa is not None:
-						programa = Programa.objects.filter(id=subprograma.programa.id).select_related('eje_estrategico').first()
+				relacion = IndicadorEntidad.objects.filter(indicador__id=item.indicador.id).select_related('subprograma').first() 
+				if relacion.subprograma is not None:
+					programa = Programa.objects.filter(id=relacion.subprograma.programa_id).select_related('eje_estrategico').first()
+					if programa is not None:
 						if programa.eje_estrategico is not None:
 							with connection.cursor() as cursor:
-								cursor.execute("SELECT seguimiento_pregunta.id, SUM(seguimiento_respuesta.valor::INTEGER) AS sumatoria FROM seguimiento_formulariorespuesta INNER JOIN seguimiento_respuesta ON seguimiento_respuesta.formulario_respuesta_id = seguimiento_formulariorespuesta.id INNER JOIN seguimiento_pregunta ON seguimiento_respuesta.pregunta_id = seguimiento_pregunta.id INNER JOIN seguimiento_indicador ON seguimiento_respuesta.indicador_id = seguimiento_indicador.id INNER JOIN seguimiento_subprograma ON seguimiento_indicador.subprograma_id = seguimiento_subprograma.id INNER JOIN seguimiento_programa ON seguimiento_subprograma.programa_id = seguimiento_programa.id INNER JOIN seguimiento_ejeestrategico ON seguimiento_programa.eje_estrategico_id = seguimiento_ejeestrategico.id WHERE seguimiento_formulariorespuesta.id = %s AND seguimiento_ejeestrategico.id = %s AND seguimiento_pregunta.id IN (9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,26, 27, 28, 29, 30, 31, 32, 33, 34, 35,36, 37, 38, 39) GROUP BY seguimiento_ejeestrategico.id, seguimiento_pregunta.id order by seguimiento_pregunta.id", [formulario.id, programa.eje_estrategico.id])
+								cursor.execute("SELECT seguimiento_pregunta.id, SUM(seguimiento_respuesta.valor::INTEGER) AS sumatoria FROM seguimiento_formulariorespuesta INNER JOIN seguimiento_respuesta ON seguimiento_respuesta.formulario_respuesta_id = seguimiento_formulariorespuesta.id INNER JOIN seguimiento_pregunta ON seguimiento_respuesta.pregunta_id = seguimiento_pregunta.id INNER JOIN seguimiento_indicador ON seguimiento_respuesta.indicador_id = seguimiento_indicador.id INNER JOIN seguimiento_indicadorentidad ON seguimiento_indicadorentidad.indicador_id = seguimiento_indicador.id INNER JOIN seguimiento_subprograma ON seguimiento_indicadorentidad.subprograma_id = seguimiento_subprograma.id INNER JOIN seguimiento_programa ON seguimiento_subprograma.programa_id = seguimiento_programa.id INNER JOIN seguimiento_ejeestrategico ON seguimiento_programa.eje_estrategico_id = seguimiento_ejeestrategico.id WHERE seguimiento_formulariorespuesta.id = %s AND seguimiento_ejeestrategico.id = %s AND seguimiento_pregunta.id IN (9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,26, 27, 28, 29, 30, 31, 32, 33, 34, 35,36, 37, 38, 39) GROUP BY seguimiento_ejeestrategico.id, seguimiento_pregunta.id order by seguimiento_pregunta.id", [formulario.id, programa.eje_estrategico.id])
 								rows = cursor.fetchall()
 								rows = dict(rows)
 								if rows is not None:
@@ -310,17 +310,18 @@ def reporte_programa_view(request):
 			tmp = formulario.respuesta_set.all()
 			prefetch_related_objects(tmp, 'indicador')
 			for item in tmp:
-				if item.indicador.subprograma is not None:
-					subprograma = Subprograma.objects.filter(id=item.indicador.subprograma.id).select_related('programa').first()
-					if subprograma.programa is not None:
+				relacion = IndicadorEntidad.objects.filter(indicador__id=item.indicador.id).select_related('subprograma').first() 
+				if relacion.subprograma is not None:
+					programa = Programa.objects.filter(id=relacion.subprograma.programa_id).first()
+					if programa is not None:
 						with connection.cursor() as cursor:
-							cursor.execute("SELECT seguimiento_pregunta.id, SUM(seguimiento_respuesta.valor::INTEGER) AS sumatoria FROM seguimiento_formulariorespuesta INNER JOIN seguimiento_respuesta ON seguimiento_respuesta.formulario_respuesta_id = seguimiento_formulariorespuesta.id INNER JOIN seguimiento_pregunta ON seguimiento_respuesta.pregunta_id = seguimiento_pregunta.id INNER JOIN seguimiento_indicador ON seguimiento_respuesta.indicador_id = seguimiento_indicador.id INNER JOIN seguimiento_subprograma ON seguimiento_indicador.subprograma_id = seguimiento_subprograma.id INNER JOIN seguimiento_programa ON seguimiento_subprograma.programa_id = seguimiento_programa.id WHERE seguimiento_formulariorespuesta.id = %s AND seguimiento_programa.id = %s AND seguimiento_pregunta.id IN (9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,26, 27, 28, 29, 30, 31, 32, 33, 34, 35,36, 37, 38, 39) GROUP BY seguimiento_programa.id, seguimiento_pregunta.id order by seguimiento_pregunta.id", [formulario.id, subprograma.programa.id])
+							cursor.execute("SELECT seguimiento_pregunta.id, SUM(seguimiento_respuesta.valor::INTEGER) AS sumatoria FROM seguimiento_formulariorespuesta INNER JOIN seguimiento_respuesta ON seguimiento_respuesta.formulario_respuesta_id = seguimiento_formulariorespuesta.id INNER JOIN seguimiento_pregunta ON seguimiento_respuesta.pregunta_id = seguimiento_pregunta.id INNER JOIN seguimiento_indicador ON seguimiento_respuesta.indicador_id = seguimiento_indicador.id INNER JOIN seguimiento_indicadorentidad ON seguimiento_indicadorentidad.indicador_id = seguimiento_indicador.id INNER JOIN seguimiento_subprograma ON seguimiento_indicadorentidad.subprograma_id = seguimiento_subprograma.id INNER JOIN seguimiento_programa ON seguimiento_subprograma.programa_id = seguimiento_programa.id WHERE seguimiento_formulariorespuesta.id = %s AND seguimiento_programa.id = %s AND seguimiento_pregunta.id IN (9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,26, 27, 28, 29, 30, 31, 32, 33, 34, 35,36, 37, 38, 39) GROUP BY seguimiento_programa.id, seguimiento_pregunta.id order by seguimiento_pregunta.id", [formulario.id, programa.id])
 							rows = cursor.fetchall()
 							rows = dict(rows)
 							if rows is not None:
 								if formulario.politica_publica.id not in respuestas:
 									respuestas[formulario.politica_publica.id] = {}
-								respuestas[formulario.politica_publica.id][subprograma.programa.id] = rows
+								respuestas[formulario.politica_publica.id][programa.id] = rows
 
 	if request.user.groups.filter(name='Administrador').count() == 1:
 		extends = 'base/admin_nav.html'
@@ -358,15 +359,16 @@ def reporte_subprograma_view(request):
 			tmp = formulario.respuesta_set.all()
 			prefetch_related_objects(tmp, 'indicador')
 			for item in tmp:
-				if item.indicador.subprograma is not None:
+				relacion = IndicadorEntidad.objects.filter(indicador__id=item.indicador.id).first() 
+				if relacion.subprograma is not None:
 					with connection.cursor() as cursor:
-						cursor.execute("SELECT seguimiento_pregunta.id, SUM(seguimiento_respuesta.valor::INTEGER) AS sumatoria FROM seguimiento_formulariorespuesta INNER JOIN seguimiento_respuesta ON seguimiento_respuesta.formulario_respuesta_id = seguimiento_formulariorespuesta.id INNER JOIN seguimiento_pregunta ON seguimiento_respuesta.pregunta_id = seguimiento_pregunta.id INNER JOIN seguimiento_indicador ON seguimiento_respuesta.indicador_id = seguimiento_indicador.id INNER JOIN seguimiento_subprograma ON seguimiento_indicador.subprograma_id = seguimiento_subprograma.id WHERE seguimiento_formulariorespuesta.id = %s AND seguimiento_subprograma.id = %s AND seguimiento_pregunta.id IN (9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,26, 27, 28, 29, 30, 31, 32, 33, 34, 35,36, 37, 38, 39) GROUP BY seguimiento_subprograma.id, seguimiento_pregunta.id order by seguimiento_pregunta.id", [formulario.id, item.indicador.subprograma.id])
+						cursor.execute("SELECT seguimiento_pregunta.id, SUM(seguimiento_respuesta.valor::INTEGER) AS sumatoria FROM seguimiento_formulariorespuesta INNER JOIN seguimiento_respuesta ON seguimiento_respuesta.formulario_respuesta_id = seguimiento_formulariorespuesta.id INNER JOIN seguimiento_pregunta ON seguimiento_respuesta.pregunta_id = seguimiento_pregunta.id INNER JOIN seguimiento_indicador ON seguimiento_respuesta.indicador_id = seguimiento_indicador.id INNER JOIN seguimiento_indicadorentidad ON seguimiento_indicadorentidad.indicador_id = seguimiento_indicador.id INNER JOIN seguimiento_subprograma ON seguimiento_indicadorentidad.subprograma_id = seguimiento_subprograma.id WHERE seguimiento_formulariorespuesta.id = %s AND seguimiento_subprograma.id = %s AND seguimiento_pregunta.id IN (9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,26, 27, 28, 29, 30, 31, 32, 33, 34, 35,36, 37, 38, 39) GROUP BY seguimiento_subprograma.id, seguimiento_pregunta.id order by seguimiento_pregunta.id", [formulario.id, relacion.subprograma.id])
 						rows = cursor.fetchall()
 						rows = dict(rows)
 						if rows is not None:
 							if formulario.politica_publica.id not in respuestas:
 								respuestas[formulario.politica_publica.id] = {}
-							respuestas[formulario.politica_publica.id][item.indicador.subprograma.id] = rows
+							respuestas[formulario.politica_publica.id][relacion.subprograma.id] = rows
 
 	if request.user.groups.filter(name='Administrador').count() == 1:
 		extends = 'base/admin_nav.html'
