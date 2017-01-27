@@ -90,7 +90,7 @@
 			{% if observaciones %}
 				<div class="tab-pane fade" id="observaciones">
 					<h3 class="text-center">Observaciones</h3>
-					<table class="table table-striped table-hover ">
+					<table id="grid" class="table table-striped table-hover dt-responsive nowrap">
 						<thead>
 							<tr>
 								<th>Política Publica</th>
@@ -250,6 +250,39 @@
 		{% endif %}
 	{% endif %}
 </div>
+
+
+
+
+<script>
+$(document).ready(function () {
+
+	$('#grid').DataTable(
+
+	{
+		dom: 'Bfrtip',
+        buttons: [
+        'csv', 'excel'
+        ],
+
+
+		"language": {
+
+			"url" : "//cdn.datatables.net/plug-ins/1.10.13/i18n/Spanish.json"
+
+		},
+
+
+		"drawCallback": function () {
+            $('.dataTables_paginate > .pagination').addClass('pagination-sm');
+            $('.buttons-html5').addClass('btn-sm');
+        }
+
+	}
+
+	);
+});
+</script> 
 {% endblock %}
 
 {% block extrascripts %}
