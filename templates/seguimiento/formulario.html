@@ -151,10 +151,18 @@
 											{% if pregunta.grupo == '3' %}
 												<hr/><h3>Recursos</h3><hr/>
 												<div class="col-md-12"></div>
+												<div class="form-group col-md-12" style="margin-right: 10px;">
+													<label for="valor">Total de recursos</label>
+													<input type="text" id="total_recursos_{{ politica.id }}" class="form-control input-sm" name="total_recursos_{{ politica.id }}" disabled>
+												</div>
 											{% endif %}
 											{% if pregunta.grupo == '4' %}
 												<hr/><h3>Población atendida</h3><hr/>
 												<div class="col-md-12"></div>
+												<div class="form-group col-md-12" style="margin-right: 10px;">
+													<label for="valor">Total de la población atendida</label>
+													<input type="text" id="total_poblacion_{{ politica.id }}" class="form-control input-sm" name="total_poblacion_{{ politica.id }}" disabled>
+												</div>
 											{% endif %}
 										{% endif %}
 									{% endwith %}
@@ -179,10 +187,18 @@
 									{% if pregunta.grupo == '3' %}
 										<hr/><h3>Recursos</h3><hr/>
 										<div class="col-md-12"></div>
+										<div class="form-group col-md-12" style="margin-right: 10px;">
+											<label for="valor">Total de recursos</label>
+											<input type="text" id="total_recursos_{{ politica.id }}" class="form-control input-sm" name="total_recursos_{{ politica.id }}" disabled>
+										</div>
 									{% endif %}
 									{% if pregunta.grupo == '4' %}
 										<hr/><h3>Población atendida</h3><hr/>
 										<div class="col-md-12"></div>
+										<div class="form-group col-md-12" style="margin-right: 10px;">
+											<label for="valor">Total de la población atendida</label>
+											<input type="text" id="total_poblacion_{{ politica.id }}" class="form-control input-sm" name="total_poblacion_{{ politica.id }}" disabled>
+										</div>
 									{% endif %}
 								{% endif %}
 								{% if pregunta.subgrupo is not None and forloop.counter0 != 0 %}
@@ -231,10 +247,34 @@
 								{% endif %}
 								<label for="valor">{{ pregunta.enunciado }}</label>
 								<input type="hidden" id="respuesta_{{ politica.id }}_{{ pregunta.id }}" name="respuesta_id_{{ pregunta.id }}">
-								{% if pregunta.tipo_pregunta == 'textarea' %}
-									<textarea rows="4" id="valor_{{ politica.id }}_{{ pregunta.id }}" class="form-control input-sm" name="valor_{{ pregunta.id }}"></textarea>
+								{% if pregunta.grupo == '3' %}
+									{% if pregunta.tipo_pregunta == 'textarea' %}
+										<textarea rows="4" id="valor_{{ politica.id }}_{{ pregunta.id }}" class="form-control input-sm recurso" name="valor_{{ pregunta.id }}"></textarea>
+									{% else %}
+										<input type="{{ pregunta.tipo_pregunta }}" id="valor_{{ politica.id }}_{{ pregunta.id }}" class="form-control input-sm recurso" name="valor_{{ pregunta.id }}">
+									{% endif %}
 								{% else %}
-									<input type="{{ pregunta.tipo_pregunta }}" id="valor_{{ politica.id }}_{{ pregunta.id }}" class="form-control input-sm" name="valor_{{ pregunta.id }}">
+									{% if pregunta.grupo == '4' %}
+										{% if pregunta.subgrupo == '1' or pregunta.subgrupo == '2' %}
+											{% if pregunta.tipo_pregunta == 'textarea' %}
+												<textarea rows="4" id="valor_{{ politica.id }}_{{ pregunta.id }}" class="form-control input-sm poblacion" name="valor_{{ pregunta.id }}"></textarea>
+											{% else %}
+												<input type="{{ pregunta.tipo_pregunta }}" id="valor_{{ politica.id }}_{{ pregunta.id }}" class="form-control input-sm poblacion" name="valor_{{ pregunta.id }}">
+											{% endif %}
+										{% else %}
+											{% if pregunta.tipo_pregunta == 'textarea' %}
+												<textarea rows="4" id="valor_{{ politica.id }}_{{ pregunta.id }}" class="form-control input-sm" name="valor_{{ pregunta.id }}"></textarea>
+											{% else %}
+												<input type="{{ pregunta.tipo_pregunta }}" id="valor_{{ politica.id }}_{{ pregunta.id }}" class="form-control input-sm" name="valor_{{ pregunta.id }}">
+											{% endif %}
+										{% endif %}
+									{% else %}
+										{% if pregunta.tipo_pregunta == 'textarea' %}
+											<textarea rows="4" id="valor_{{ politica.id }}_{{ pregunta.id }}" class="form-control input-sm" name="valor_{{ pregunta.id }}"></textarea>
+										{% else %}
+											<input type="{{ pregunta.tipo_pregunta }}" id="valor_{{ politica.id }}_{{ pregunta.id }}" class="form-control input-sm" name="valor_{{ pregunta.id }}">
+										{% endif %}
+									{% endif %}
 								{% endif %}
 								</div>
 							{% endfor %}
@@ -250,10 +290,6 @@
 		{% endif %}
 	{% endif %}
 </div>
-
-
-
-
 <script>
 $(document).ready(function () {
 

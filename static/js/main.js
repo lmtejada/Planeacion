@@ -42,10 +42,33 @@ $('.guardar').on('click', function(event){
             $('#errors_'+politica_id).show();
             window.scrollTo(0,0);
         } else {
-            $(':input:not([type=button])', '#'+id).each(function() {
-                if(!$(this).is(':hidden')){
-                    if(typeof $(this).attr('name') != 'undefined'){
-                        if(this.value == ''){
+            var total1 = parseFloat($("#valor_"+politica_id+"_15").val()) + parseFloat($("#valor_"+politica_id+"_16").val());
+            if(isNaN(total1))
+                total1 = 0;
+
+            var total2 = parseFloat($("#valor_"+politica_id+"_17").val()) + parseFloat($("#valor_"+politica_id+"_18").val());
+            if(isNaN(total2))
+                total2 = 0;
+
+            if(total1 != 0 && total2 != 0 && total1 != total2){
+                enviar = false;
+                $('#errors_'+politica_id).html("<p>El total de la población atendida debe ser igual para el género y la zona.</p>"); 
+                $('#errors_'+politica_id).show();
+                window.scrollTo(0,0);
+            } else {
+                $(':input:not([type=button])', '#'+id).each(function() {
+                    if(!$(this).is(':hidden')){
+                        if(typeof $(this).attr('name') != 'undefined'){
+                            if(this.value == ''){
+                                enviar = false;
+                                $('#errors_'+politica_id).html("<p>Para guardar el formulario debe diligenciar todos los campos.</p>"); 
+                                $('#errors_'+politica_id).show();
+                                window.scrollTo(0,0);
+                                return;
+                            }
+                        }
+                    } else if ($(this).hasClass( "chosen" )){   
+                        if(this.value == 'null'){
                             enviar = false;
                             $('#errors_'+politica_id).html("<p>Para guardar el formulario debe diligenciar todos los campos.</p>"); 
                             $('#errors_'+politica_id).show();
@@ -53,16 +76,8 @@ $('.guardar').on('click', function(event){
                             return;
                         }
                     }
-                } else if ($(this).hasClass( "chosen" )){   
-                    if(this.value == 'null'){
-                        enviar = false;
-                        $('#errors_'+politica_id).html("<p>Para guardar el formulario debe diligenciar todos los campos.</p>"); 
-                        $('#errors_'+politica_id).show();
-                        window.scrollTo(0,0);
-                        return;
-                    }
-                }
-            });
+                });
+            }
         }
     } 
 
@@ -83,7 +98,6 @@ $('.enviar').on('click', function(event){
 
     $('#'+id).append("<input type='hidden' name='enviado' value='true'/>");
     $('#'+id).append("<input type='hidden' name='politica' value='"+tmp+"'/>");
-    //$('#'+id).append("<input type='hidden' name='activo' value='false'/>");
 
     var csrftoken = getCookie('csrftoken');
     $('input[name=csrfmiddlewaretoken]').val(csrftoken);
@@ -198,6 +212,31 @@ $('.observaciones').on('click', function(event){
     }
 });
 
+$('.recurso').on('change', function(event){
+    if($(this).val() < 0)
+        $(this).val(0);
+    var id = $(this).attr('id');
+    id = id.split('_');
+    id = id[1];   
+    var total = parseFloat($("#valor_"+id+"_9").val()) + parseFloat($("#valor_"+id+"_10").val()) + parseFloat($("#valor_"+id+"_11").val()) + parseFloat($("#valor_"+id+"_12").val()) + parseFloat($("#valor_"+id+"_13").val()) + parseFloat($("#valor_"+id+"_14").val());
+    if(isNaN(total))
+        total = 0;
+    $("#total_recursos_"+id).val(total);
+});
+
+$('.poblacion').on('change', function(event){
+    if($(this).val() < 0)
+        $(this).val(0);
+    var id = $(this).attr('id');
+    id = id.split('_');
+    id = id[1];   
+    var total = parseFloat($("#valor_"+id+"_15").val()) + parseFloat($("#valor_"+id+"_16").val());
+    if(isNaN(total))
+        total = 0;
+
+    $("#total_poblacion_"+id).val(total);
+});
+
 function cargarData(indicador_id, formulario_id) { 
     $.ajax({
         url : "/seguimiento/get_data/", 
@@ -235,7 +274,6 @@ function cargarDataRespuesta(indicador_id, politica_id, formulario_id) {
 function llenarFormulario(json, politica_id){
 	var obj = JSON.parse(json);
     var id = "formulario_"+politica_id;
-    console.log(obj);
     $("#data_"+politica_id).html("<hr/><h3>Información de la política</h3><hr/>"+
                                  "<div class='row'><div class='col-md-12'><label>"+obj['data']['nivel1'].nombre+"</label><p>"+obj['data']['nivel1'].valor+"</p></div></div>"+
                                  "<div class='row'><div class='col-md-12'><label>"+obj['data']['nivel2'].nombre+"</label><p>"+obj['data']['nivel2'].valor+"</p></div></div>"+
@@ -294,6 +332,17 @@ function llenarFormulario(json, politica_id){
         });
     }
 
+    var total = parseFloat($("#valor_"+politica_id+"_15").val()) + parseFloat($("#valor_"+politica_id+"_16").val());
+    if(isNaN(total))
+        total = 0;
+    $("#total_poblacion_"+politica_id).val(total);
+    $("#total_poblacion_"+politica_id).prop('disabled', true); 
+
+    var total = parseFloat($("#valor_"+politica_id+"_9").val()) + parseFloat($("#valor_"+politica_id+"_10").val()) + parseFloat($("#valor_"+politica_id+"_11").val()) + parseFloat($("#valor_"+politica_id+"_12").val()) + parseFloat($("#valor_"+politica_id+"_13").val()) + parseFloat($("#valor_"+politica_id+"_14").val());
+    if(isNaN(total))
+        total = 0;
+    $("#total_recursos_"+politica_id).val(total);
+    $("#total_recursos_"+politica_id).prop('disabled', true); 
     $(".chosen").trigger("chosen:updated");
 };
 
@@ -346,3 +395,4 @@ document.addEventListener("DOMContentLoaded", function(event){
         window.location.hash = '';
     }
 });
+
