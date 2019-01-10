@@ -1,0 +1,194 @@
+<html>
+    <head>
+        <title>Growler</title>
+    </head>
+    <body>
+        <div id="growler">
+            <!-- Semantic Binding -->
+            <h2>Welcome to {{ appName }}</h2>
+            <h2 v-once>{{ appName }}</h2>
+            <!-- Declarative Binding -->
+            <h2 
+                v-bind:class="[accentColor, headers]"
+                v-text="appName">
+            </h2>
+            <h2 v-html="appName2" v-cloak></h2>
+            <img v-bind:src="appLogo" alt="Growler">
+            <br/>
+
+            <input 
+                v-model.lazy.trim="query"
+                placeholder="Search..."
+                v-on:keyup.enter.prevent="executeSearch"
+                v-on:key-up.ctrl.enter="executeSearchInNewWindow">
+            <button v-on:click.prevent.stop="executeSearch">Search</button> <!-- or @click="executeSearch" -->
+            <br/>
+            <div>Searching for: {{ query }}</div>   
+            <!-- <input type="checkbox" v-model="isPowerSyntaxEnabled"> -->
+            <label>
+                <input 
+                    type="checkbox" value="beers"
+                    v-model="searchIndexes">
+                Beers
+            </label>
+            <br/>
+
+            <label>
+                <input 
+                    type="checkbox" value="breweries"
+                    v-model="searchIndexes">
+                Breweries
+            </label>
+            <br/>
+
+            <small>selected: {{ searchIndexes }}</small>
+            <br/>
+
+            <label class="form-check-label">
+                <input 
+                    type="radio" value="beers"
+                    v-model="searchIndex">
+                Beers
+            </label>
+            <br/>
+
+            <label class="form-check-label">
+                <input 
+                    type="radio" value="breweries"
+                    v-model="searchIndex">
+                Breweries
+            </label>
+            <br/>
+
+            <small>selected: {{ searchIndex }}</small>
+            <br/>
+
+            <select v-model="selectedSearchIndex">
+                <option value="beers">Beers</option>
+                <option value="breweries">Breweries</option>
+                <option value="distilleries">Distilleries</option>
+                <option value="pubs">Pubs</option>
+            </select>
+            <br/>
+
+            <small>selected: {{ selectedSearchIndex }}</small>
+            <br/>
+
+            <select multiple v-model="selectedSearchIndexes">
+                <option value="beers">Beers</option>
+                <option value="breweries">Breweries</option>
+                <option value="distilleries">Distilleries</option>
+                <option value="pubs">Pubs</option>
+            </select>
+            <br/>
+
+            <small>selected: {{ selectedSearchIndexes }}</small>
+            <br/>
+        </div>
+        <script type="text/javascript" src="https://unpkg.com/vue">
+        </script> 
+    </body>
+</html>
+<style>
+    .accent-color {
+        color: '#FF6A00';
+    }
+    .headers {
+        font-family: 'verdana';
+        margin: 0
+    }
+</style>
+<script type="text/javascript">
+    var growler = new Vue({
+        el: '#growler',
+        /*
+            You can't add or remove properties at runtime
+            You can only modify properties
+        */
+        data: {
+            appName: 'Growler',
+            appName2: '<a href="/">Growler</a>',
+            appLogo: 'img/logo.jpg',
+            accentColor: 'accent-color',
+            headers: 'headers',
+            query: '',
+            searchIndexes: [],
+            searchIndex: 'beers',
+            selectedSearchIndex: 'beers',
+            selectedSearchIndexes: [
+                'beers',
+                'pubs'
+            ]
+        },
+        methods: {
+            executeSearch: function(event){
+                alert(event.target.innerText + ' ' + this.query);
+            }
+        }
+    });
+    // Other directives
+    // v-if, v-else-if, v-else
+    // v-show
+    // v-cloak
+    // v-for
+        // v-for="i in/of total" --> i alias start at 1 [You cant iterate over a range of floating-point numbers]
+        // v-for="properties in object"
+        // v-for="(v, k, i) in object"
+    // Change notifications and dependency tracking
+    // Mutation functions: sort, reverse, push, pop, shift, unshift, splice
+    // Watchers -> Behavior and depth
+    // Computed properties: Result will only be re-generated if a depending value changes -> Getter by default
+    // Accessor: Computed properties that can get or set property values
+    // Filters -> Used for common text conversions (like pipes)
+
+    // Routing: Use vue-router
+
+        //Vue.use(Router);
+
+        //export default new Router({
+        //  routes: [{
+        //      path: '/',
+        //      name: 'Home',
+        //      component: HomePage
+        //  }, {
+        //      path: '/name',
+        //      name: 'Name',
+        //      component: ComponentName
+        //  }, ...]
+        //})
+
+        //Import router in main.js and add it to Vue instance:
+        //new Vue({
+        //  render: h => h(App),
+        //  router,
+        //}).$mount('#app'); 
+
+        // Add <router-view/> tag in html.
+        // Use it as an anchor element: 
+        // <router-link active-class="name" to="/name" exact></router-link>
+        // <router-link :to="{name: 'ComponentName'}" exact></router-link>
+        // Active class default name: router-link-active
+
+        // Navigating from javascript
+        // this.$router.push('name');     css-> cursor: pointer
+
+        // Route params
+        // {
+        //      path: '/name/:param1/:param2',
+        //      name: 'Name',
+        //      component: ComponentName
+        // }
+        // var name = this.$route.params.name;
+        // this.$router.push({ name: 'ComponentName', params: { param1: value1, param2: value2 } });
+
+    /*
+        MANAGING STATE AND SERVER COMMUNICATION -> VUEX
+
+        The Vuex Store:
+        - The shared stated object
+        - Mutations
+        - Actions
+        - Getters
+    
+    */
+</script>
